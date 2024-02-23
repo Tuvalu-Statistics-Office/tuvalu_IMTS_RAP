@@ -1,11 +1,11 @@
 ####Data Processing and Cleaning ####
 
 #Load required libraries
-library(dplyr)
-library(readxl)
-library(openxlsx)
-library(tidyr)
-library(RSQLite)
+library(dplyr) #Library to manipulate the data
+library(readxl) #Library to read excel files 
+library(openxlsx) #Library to write excel files
+library(tidyr) # Library to format dataframe
+library(RSQLite) #Library to allow you to be abale to connect to SQLite database
 
 #Dynamic directory path mapping
 repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
