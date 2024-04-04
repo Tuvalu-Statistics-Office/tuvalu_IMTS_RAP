@@ -10,3 +10,8 @@ The purpose of this R Reproducible Analytical Pipeline (RAP) is to process the I
 ### Diagram showing the stage by stage processes
 
 ![The new Reproducible Analytical Pipeline](image/MappingTheProcess_20-12-23.jpg)
+
+
+### Diagram showing the Processes stage by stage
+
+![Chart of the Process flow](image/Flowchart_process.jpg)
