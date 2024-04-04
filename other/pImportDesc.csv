@@ -1,0 +1,35 @@
+CODE,NUM,specs
+02,1,"Meat and edible offal, incl poultry, fresh, chilled or frozen"
+04,2,"Dairy produce, eggs and honey"
+07,3,Edible vegetables
+0901-02,4,Coffee and tea
+1006,5,Rice
+1101,6,Wheat flour 
+1501-18,7,Animal or vegetable fats & oils
+16,8,"Edible preparation of meat, fish, crustaceans etc"
+1701-03,9,Cane or beet sugar
+1902,10,Pasta/noodles and couscous
+1905,11,Biscuits
+2103,12,Sauces
+2201-02,13,Mineral and aerated waters including sweetened or flavoured
+2203,14,Beer made from malt
+2204-08,15,"Spirit beverage, incl wine"
+2401-03,16,"Cigars, cigarettes and tobacco"
+2504-30,17,"Earths and stone; plastering materials, lime and cement"
+27,18,Mineral fuels and oils and related products
+30,19,Pharmaceutical products
+3208-10,20,Paints and varnishes
+3917,21,"Tubes, pipes and hoses, and fittings therefor, of plastics"
+44,22,Wood and articles of wood
+5208-12,23,Woven fabrics of cotton
+61-62,24,Articles of apparel and clothing accessories
+63,25,Other made-up textile articles and worn clothing
+68,26,"Articles of stone, plaster, cement and similar materials"
+69,27,Ceramic products
+70,28,Glass and glassware
+84,29,"Boilers, Machinery and mechanical appliance and parts thereof"
+85,30,"Electical machinery and equipment, television image and sound recorders and parts thereof"
+87,31,"Motor vehicles incl motorcycles, bicycles and tractors"
+9015,32,Survey instruments etc 
+94,33,"Furniture, bedding, refabricated buildings etc"
+OTHER,34,Other Imports

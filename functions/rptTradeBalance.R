@@ -2,7 +2,7 @@
 
 #Monthly Trade Balances
 imp <- dbGetQuery(mydb, "SELECT import.Year, import.Month, tblmonth.monthName AS monthName, 
-                                        round(sum(import.[Invoice Value]/1000),0) AS Value 
+                                        round(sum(import.[cif]/1000),0) AS Value 
                                  FROM import
                                  INNER JOIN tblmonth ON import.Month = tblMonth.month
                                  WHERE import.Year > 2000
@@ -12,7 +12,7 @@ imp <- dbGetQuery(mydb, "SELECT import.Year, import.Month, tblmonth.monthName AS
 imp$type <- "Import"
 
 exp <- dbGetQuery(mydb, "SELECT export.Year, export.Month, tblmonth.monthName AS monthName, 
-                                        round(sum(export.[Invoice Value]/1000),0) AS Value 
+                                        round(sum(export.[cif]/1000),0) AS Value 
                                  FROM export
                                  INNER JOIN tblmonth ON export.Month = tblMonth.month
                                  WHERE export.Year > 2000

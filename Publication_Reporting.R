@@ -17,7 +17,7 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 cmonth <- curMonth
 cyear <- curYear
 
-# Create word document object
+# Create blank word document object
 word_doc <- read_docx()
 
 logo <- "image/logo.png"
@@ -73,9 +73,9 @@ word_doc <- word_doc %>%
   body_add(format_heading, style = "centered") %>%
   body_add_par("") %>%
   body_add_par("Table of Content", style = "heading 1") %>%
-  body_add_toc() %>%
+  body_add_toc() %>% #Add table of contents
   body_add_par("") %>%
-  body_add_break() %>%
+  body_add_break() %>% #Adds Page break
   body_add_par("Introduction", style = "heading 1") %>%
   body_add_par("") %>%
   body_add_par(intro1, style = "Normal") %>%

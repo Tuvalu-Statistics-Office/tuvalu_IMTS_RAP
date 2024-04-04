@@ -1,0 +1,103 @@
+countryCode,region,countryDesc
+CM,Africa,Cameroon
+DJ,Africa,Djibouti
+DZ,Africa,Algeria
+EG,Africa,Egypt
+GM,Africa,Gambia
+MA,Africa,Morocco
+ML,Africa,Mali
+NA,Africa,Namibia
+SD,Africa,Sudan
+SL,Africa,Sierra Leone
+SO,Africa,Somalia
+SZ,Africa,Swaziland
+TN,Africa,Tunisia
+ZA,Africa,South Africa
+AG,Americas,Antigua and Barbuda
+AN,Americas,Netherlands Antilles
+AR,Americas,Argentina
+BR,Americas,Brazil
+CA,Americas,Canada
+CL,Americas,Chile
+CO,Americas,Colombia
+DM,Americas,Dominica
+DO,Americas,Dominican Republic
+GF,Americas,French Guiana
+GY,Americas,Guyana
+HT,Americas,Haiti
+MX,Americas,Mexico
+PE,Americas,Peru
+PR,Americas,Puerto Rico
+SV,Americas,El Salvador
+US,Americas,United States of America
+VE,Americas,Venezuela
+VI,Americas,"Virgin Islands, United States"
+BN,Asia,Brunei Darussalam
+CN,Asia,"China, Peoples Republic of"
+EN,Asia,NOT CLASSIFIED
+HK,Asia,Hong Kong
+HU,Asia,NOT CLASSIFIED
+ID,Asia,Indonesia
+IN,Asia,India
+JP,Asia,Japan
+KP,Asia,Korea Democratic People's Rep
+KR,Asia,Korea Republic of
+LK,Asia,Sri Lanka
+MY,Asia,Malaysia
+PH,Asia,Philippines
+SG,Asia,Singapore
+SR,Asia,Suriname
+TH,Asia,Thailand
+TW,Asia,"Taiwan, Peoples Republic of China"
+VN,Asia,Viet Nam
+BE,E E C,Belgium
+DE,E E C,Germany
+DK,E E C,Denmark
+ES,E E C,Spain
+FR,E E C,France
+GB,E E C,United Kingdom
+GR,E E C,Greece
+IE,E E C,"Ireland, Republic of"
+IT,E E C,Italy
+NL,E E C,Netherlands
+TR,E E C,Turkey
+BG,Eastern Europe,Bulgaria
+GE,Eastern Europe,Georgia
+RU,Eastern Europe,Russia
+AD,Europe,Andorra
+AM,Europe,Armenia
+AT,Europe,Austria
+BY,Europe,Belarus
+CH,Europe,Switzerland
+CY,Europe,Cyprus
+FI,Europe,Finland
+MC,Europe,Monaco
+NO,Europe,Norway
+SE,Europe,Sweden
+SI,Europe,Slovenia
+SM,Europe,San Marino
+UA,Europe,Ukraine
+VA,Europe,Vatican City State
+PL,Europe,Poland
+AE,Middle East,United Arab Emirates
+IL,Middle East,Israel
+IR,Middle East,Iran
+OM,Middle East,Oman
+QA,Middle East,Qatar
+SA,Middle East,Saudi Arabia
+AU,Oceania,Australia
+CK,Oceania,Cook Islands
+FJ,Oceania,Fiji
+KI,Oceania,Kiribati
+NC,Oceania,New Caledonia
+NZ,Oceania,New Zealand
+PG,Oceania,Papua New Guinea
+PO,Oceania,Australia
+SB,Oceania,Solomon Islands
+TK,Oceania,Tokelau
+TL,Oceania,Australia
+TO,Oceania,Tonga
+TV,Oceania,Tuvalu
+VU,Oceania,Vanuatu
+WS,Oceania,Samoa
+IS,Others,Iceland

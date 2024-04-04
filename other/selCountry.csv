@@ -1,0 +1,15 @@
+coeID,coeSelected,region,regionSelected
+AU,1. Australia,Oceania,5. Oceania
+CN,2. China,Asia,3. Asia
+FJ,3. Fiji,Oceania,5. Oceania
+ID,4. Indonesia,Asia,3. Asia
+JP,5. Japan,Asia,3. Asia
+KR,6. Korea,Asia,3. Asia
+MY,7. Malaysia,Asia,3. Asia
+NZ,8. New Zealand,Oceania,5. Oceania
+Other,14. Other countries,Other,3. Asia
+SG,9. Singapore,Asia,3. Asia
+TH,10. Thailand,Asia,3. Asia
+TW,11. Taiwan,Asia,3. Asia
+US,12. United States of America,The Americas,2. The Americas
+VN,13. Vietnam,Asia,3. Asia

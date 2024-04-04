@@ -4,6 +4,7 @@ library(readxl)
 library(openxlsx)
 library(tidyr)
 library(RSQLite)
+library(lubridate) #Date conversions and manipulations
 
 #Dynamic directory path mapping
 repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
@@ -16,8 +17,10 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 import <- read_excel("data/import.xlsx")
 export <- read_excel("data/export.xlsx")
 country <- read.csv("other/country.csv")
+countries <- read.csv("other/countries.csv")
 hsClass <- read.csv("other/importClassification.csv")
 principalImports <- read.csv("other/principalImports.csv")
+
 
 #Reformatting HS2 column into having a width of 2 digit
 width <- 2
