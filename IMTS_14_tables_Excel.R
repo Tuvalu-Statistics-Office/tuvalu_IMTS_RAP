@@ -31,7 +31,7 @@ pt <- PivotTable$new()
 pt$addData(t1)
 pt$addColumnDataGroups("Type")
 pt$addRowDataGroups("Period")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Import)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -47,7 +47,7 @@ pt <- PivotTable$new()
 pt$addData(t2)
 pt$addColumnDataGroups("Type")
 pt$addRowDataGroups("Period")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Import)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -63,7 +63,7 @@ pt <- PivotTable$new()
 pt$addData(t3)
 pt$addColumnDataGroups("Year")
 pt$addRowDataGroups("HSClass")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -80,7 +80,7 @@ pt$addData(t4)
 pt$addColumnDataGroups("Year")
 pt$addColumnDataGroups("monthName")
 pt$addRowDataGroups("HSClass")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -101,7 +101,7 @@ pt <- PivotTable$new(tableStyle=list("border-color"="maroon"),
 pt$addData(t5A)
 pt$addColumnDataGroups("Year")
 pt$addRowDataGroups("Commodity")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$renderPivot()
 
 #Writing final results to Excel worksheet
@@ -124,7 +124,7 @@ pt$addData(t5B)
 pt$addColumnDataGroups("Year")
 pt$addColumnDataGroups("monthName")
 pt$addRowDataGroups("Commodity")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$renderPivot()
 
 #Writing final results to Excel worksheet
@@ -142,7 +142,7 @@ pt <- PivotTable$new()
 pt$addData(t6)
 pt$addColumnDataGroups("Year")
 pt$addRowDataGroups("country")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -160,7 +160,7 @@ pt$addData(t7)
 pt$addColumnDataGroups("Year")
 pt$addColumnDataGroups("monthName")
 pt$addRowDataGroups("country")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -177,7 +177,7 @@ pt <- PivotTable$new()
 pt$addData(t8)
 pt$addColumnDataGroups("Year")
 pt$addRowDataGroups("Region")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark=',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -195,7 +195,7 @@ pt$addData(t9)
 pt$addColumnDataGroups("Year")
 pt$addColumnDataGroups("monthName")
 pt$addRowDataGroups("Region")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -212,7 +212,7 @@ pt <- PivotTable$new()
 pt$addData(t10)
 pt$addColumnDataGroups("transportMode")
 pt$addRowDataGroups("Period")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',') ")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -229,7 +229,7 @@ pt <- PivotTable$new()
 pt$addData(t11)
 pt$addColumnDataGroups("transportMode")
 pt$addRowDataGroups("Period")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="sum(Value)")
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 

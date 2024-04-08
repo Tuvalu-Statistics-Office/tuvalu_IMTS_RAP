@@ -8,14 +8,14 @@ table2 <- function(statFrame){
   
   # Annual Data preparation
   
- importHS <- import %>%
-    select(Year, Month, HS2, CIF)
+ importHS <- impo %>%
+    select(Year, Month, hs2, cif)
   
-  importHS_merge_class <- merge(importHS, hsClass, by = "HS2")
+  importHS_merge_class <- merge(importHS, hsClass, by = "hs2")
   
   importHS_merge_class_summary <- importHS_merge_class %>%
-    group_by(Year, Month, hsGroup, Description) %>%
-    summarise(total = sum(CIF))
+    group_by(Year, Month, hsGroup, hsDescription) %>%
+    summarise(total = sum(cif))
   
   # Annual Import by Commodity
   
@@ -34,14 +34,14 @@ table2 <- function(statFrame){
   
   # Monthly data preparation
   
-  importYM <- import %>%
-    select(yearMonth, HS2, CIF)
+  importYM <- impo %>%
+    select(yearMonth, hs2, cif)
   
-  importHS_merge_class_YM <- merge(importYM, hsClass, by = "HS2")
+  importHS_merge_class_YM <- merge(importYM, hsClass, by = "hs2")
   
   monthImportCommodity <- importHS_merge_class_YM %>%
     group_by(yearMonth, hsGroup) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(monthImportCommodity)[colnames(monthImportCommodity) == "yearMonth"] <- "TIME_PERIOD"
   colnames(monthImportCommodity)[colnames(monthImportCommodity) == "hsGroup"] <- "COMMODITY"
@@ -53,13 +53,16 @@ table2 <- function(statFrame){
   # Annual Export by HS processing
   
   exportHS <- export %>%
-    select(Year, Month, HS2, CIF)
+    select(Year, Month, HS2, CIF) %>%
+    rename(hs2 = HS2,
+           cif = CIF,
+           )
   
-  exportHS_merge_class <- merge(exportHS, hsClass, by = "HS2")
+  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
-    group_by(Year, Month, hsGroup, Description) %>%
-    summarise(total = sum(CIF))
+    group_by(Year, Month, hsGroup, hsDescription) %>%
+    summarise(total = sum(cif))
   
   annualExportCommodity <- exportHS_merge_class_summary %>%
     group_by(Year, hsGroup) %>%
@@ -75,13 +78,16 @@ table2 <- function(statFrame){
   # Monthly Export by HS processing
   
   exportYM <- export %>%
-    select(yearMonth, HS2, CIF)
+    select(yearMonth, HS2, CIF) %>%
+    rename(hs2 = HS2,
+           cif = CIF
+           )
   
-  exportYM_merge_class <- merge(exportYM, hsClass, by = "HS2")
+  exportYM_merge_class <- merge(exportYM, hsClass, by = "hs2")
   
   exportYM_merge_class_summary <- exportYM_merge_class %>%
     group_by(yearMonth, hsGroup) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(exportYM_merge_class_summary)[colnames(exportYM_merge_class_summary) == "yearMonth"] <- "TIME_PERIOD"
   exportYM_merge_class_summary$TIME_PERIOD <- as.character(exportYM_merge_class_summary$TIME_PERIOD)

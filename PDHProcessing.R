@@ -24,7 +24,7 @@ principalImports <- read.csv("other/principalImports.csv")
 
 #Reformatting HS2 column into having a width of 2 digit
 width <- 2
-hsClass$HS2 <- sprintf(paste0('%0', width, 'd'), hsClass$HS2)
+hsClass$hs2 <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
 import$HS2 <- as.numeric(import$HS2)
 import$HS2 <- sprintf(paste0('%0', width, 'd'), import$HS2)
 colnames(export)[colnames(export) == "Chapter"] <- "HS2"
@@ -41,8 +41,8 @@ curMonth <- head(curMonth, 1)
 curMonth <- curMonth$Month
 
 #merge imports and exports with hs classes
-import_class <- merge(import, hsClass, by = "HS2")
-export_class <- merge(export, hsClass, by = "HS2")
+import_class <- merge(import, hsClass, by = "hs2")
+export_class <- merge(export, hsClass, by = "hs2")
 
 # Define TIME_PERIOD for later use
 import$yearMonth <- paste(import$Year, import$Month, sep = "-")

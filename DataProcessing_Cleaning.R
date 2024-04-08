@@ -64,6 +64,8 @@ impo$sadDate = dmy(impo$sadDate)
 impo$Month = month(impo$sadDate)
 impo$Year = year(impo$sadDate)
 
+impo$MonthID <- sprintf("%02d", impo$Month)
+impo$yearMonth <- paste(impo$Year, impo$MonthID, sep = "-")
 
 #Drop records where the Tariff has NA value
 impo <- impo[!is.na(impo$tariff), ]
@@ -134,17 +136,20 @@ impo$CODE[is.na(impo$CODE)] <- 9999
 impo$specs[is.na(impo$specs)] <- "Other imports"
 
 # Create an auto-incrementing column using row_number()
-imports <- impo %>% 
+impo <- impo %>% 
   mutate(UID = row_number())
 
 #Rename quantity or weight column to be used later on
-colnames(imports)[colnames(imports) == "uomCode2"] <- "qtywgt"
+colnames(impo)[colnames(impo) == "uomCode2"] <- "qtywgt"
+dbWriteTable(mydb, "impo", impo, overwrite = TRUE)
+
+
 
 #Compute Unit Value by taking CIF and dividing quantity/weight/volume
-imports$unitValue <- round((imports$cif / imports$qtywgt), 2)
+impo$unitValue <- round((impo$cif / impo$qtywgt), 2)
 
 #Construct the summary table
-imports_check <- imports %>%
+imports_check <- impo %>%
   group_by(tariff) %>%
   summarise(minValue = round(min(unitValue), 2),
             maxValue = round(max(unitValue), 2),

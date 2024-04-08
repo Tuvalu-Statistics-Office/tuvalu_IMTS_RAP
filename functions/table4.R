@@ -7,15 +7,14 @@
 table4 <- function(statFrame){
   
   statFrame <- data.frame()
-  importPartnerAnnual <- import %>%
-    filter(Year > 2000) %>%
-    group_by(COE, Year) %>%
-    summarise(OBS_VALUE = sum(CIF))
+  importPartnerAnnual <- impo %>%
+    group_by(coeID, Year) %>%
+    summarise(OBS_VALUE = sum(cif))
   
   # Renaming columns
   
   colnames(importPartnerAnnual)[colnames(importPartnerAnnual) == "Year"] <- "TIME_PERIOD"
-  colnames(importPartnerAnnual)[colnames(importPartnerAnnual) == "COE"] <- "COUNTERPART"
+  colnames(importPartnerAnnual)[colnames(importPartnerAnnual) == "coeID"] <- "COUNTERPART"
   
   importPartnerAnnual$FREQ <- "A"
   importPartnerAnnual$TRADE_FLOW <- "M"
@@ -23,7 +22,6 @@ table4 <- function(statFrame){
   
   #Export by Partner Countries
   exportPartnerAnnual <- export %>%
-    filter(Year > 2000) %>%
     group_by(Year, COD) %>%
     summarise(OBS_VALUE = sum(CIF))
   
@@ -41,7 +39,6 @@ table4 <- function(statFrame){
   # Import by partner country by month
   
   importPartnerMonthly <- import %>%
-    filter(Year > 2000) %>%
     group_by(COE, yearMonth) %>%
     summarise(OBS_VALUE = sum(CIF))
   
@@ -57,7 +54,6 @@ table4 <- function(statFrame){
   # Export by partner country by month
   
   exportPartnerMonthly <- export %>%
-    filter(Year > 2000) %>%
     group_by(COD, yearMonth) %>%
     summarise(OBS_VALUE = sum(CIF))
   

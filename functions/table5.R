@@ -6,10 +6,9 @@ table5 <- function(statFrame) {
   
   statFrame <- data.frame()
   # Import Transport mode Annual
-  importTransportAnnual <- import %>%
-    filter(Year > 2000) %>%
+  importTransportAnnual <- impo %>%
     group_by(Office, Year) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(importTransportAnnual)[colnames(importTransportAnnual) == "Year"] <- "TIME_PERIOD"
   colnames(importTransportAnnual)[colnames(importTransportAnnual) == "Office"] <- "TRANSPORT"
@@ -19,7 +18,6 @@ table5 <- function(statFrame) {
   
   #Export Transport mode Annual
   exportTransportAnnual <- export %>%
-    filter(Year > 2000) %>%
     group_by(Office, Year) %>%
     summarise(OBS_VALUE = sum(CIF))
   
@@ -34,10 +32,9 @@ table5 <- function(statFrame) {
   
   
   # Import Transport mode Monthly
-  importTransportMonthly <- import %>%
-    filter(Year > 2000) %>%
+  importTransportMonthly <- impo %>%
     group_by(Office, yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(importTransportMonthly)[colnames(importTransportMonthly) == "yearMonth"] <- "TIME_PERIOD"
   colnames(importTransportMonthly)[colnames(importTransportMonthly) == "Office"] <- "TRANSPORT"
@@ -48,7 +45,6 @@ table5 <- function(statFrame) {
   
   #Export Transport mode Monthly
   exportTransportMonthly <- export %>%
-    filter(Year > 2000) %>%
     group_by(Office, yearMonth) %>%
     summarise(OBS_VALUE = sum(CIF))
   

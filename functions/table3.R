@@ -14,13 +14,16 @@ table3 <- function(statFrame){
   
    
   exportHS <- export %>%
-    select(Year, Month, HS2, CIF)
+    select(Year, Month, HS2, CIF) %>%
+    rename(hs2 = HS2,
+           cif = CIF
+           )
   
-  exportHS_merge_class <- merge(exportHS, hsClass, by = "HS2")
+  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
-    group_by(Year, Month, hsGroup, Description) %>%
-    summarise(total = sum(CIF))
+    group_by(Year, Month, hsGroup, hsDescription) %>%
+    summarise(total = sum(cif))
   
   # Annual Import by Commodity
   
@@ -39,13 +42,16 @@ table3 <- function(statFrame){
   # Monthly data preparation
   
   exportYM <- export %>%
-    select(yearMonth, HS2, CIF)
+    select(yearMonth, HS2, CIF) %>%
+    rename(hs2 = HS2,
+           cif = CIF
+           )
   
-  exportHS_merge_class_YM <- merge(exportYM, hsClass, by = "HS2")
+  exportHS_merge_class_YM <- merge(exportYM, hsClass, by = "hs2")
   
   monthExportCommodity <- exportHS_merge_class_YM %>%
     group_by(yearMonth, hsGroup) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(monthExportCommodity)[colnames(monthExportCommodity) == "yearMonth"] <- "TIME_PERIOD"
   colnames(monthExportCommodity)[colnames(monthExportCommodity) == "hsGroup"] <- "COMMODITY"

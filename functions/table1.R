@@ -7,23 +7,20 @@ table1 <- function(statFrame){
   
   #### Annual Import Summary - 1_BOT ####
   
-  annualImport <- import %>%
-    filter(Year > 2000) %>%
+  annualImport <- impo %>%
     group_by(Year) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(annualImport)[colnames(annualImport) == "Year"] <- "TIME_PERIOD"
   annualImport$FREQ  = "A"
   annualImport$TRADE_FLOW = "M"
   
   #Monthly Import Summary
-  monthlyImport <- import %>%
-    filter(Year > 2000) %>%
+  monthlyImport <- impo %>%
     group_by(yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   dbWriteTable(mydb, "monthImport", monthlyImport, overwrite = TRUE )
-  #monthlyImport$TIME_PERIOD <- paste(monthlyImport$Year, monthlyImport$Month, sep = "-")
   names(monthlyImport)[names(monthlyImport) == "yearMonth"] <- "TIME_PERIOD"
   monthlyImport$FREQ  = "M"
   monthlyImport$TRADE_FLOW = "M"
@@ -33,7 +30,6 @@ table1 <- function(statFrame){
   # Annual Export Processing
   
   annualExport <- export %>%
-    filter(Year > 2000) %>%
     group_by(Year) %>%
     summarise(OBS_VALUE = sum(CIF))
   
@@ -44,7 +40,6 @@ table1 <- function(statFrame){
   # Monthly Export Processing
   
   monthlyExport <- export %>%
-    filter(Year > 2000) %>%
     group_by(yearMonth) %>%
     summarise(OBS_VALUE = sum(CIF))
   
@@ -67,7 +62,11 @@ table1 <- function(statFrame){
   tradeBalance_df$TRADE_FLOW = "TB"
   
   # Monthly Trade Balance
-  monthTradeBalance <- merge(monthlyExport, monthlyImport, by = "TIME_PERIOD")
+  monthTradeBalance <- merge(monthlyExport, monthlyImport, by = "TIME_PERIOD", all = TRUE)
+  monthTradeBalance$OBS_VALUE.x[is.na(monthTradeBalance$OBS_VALUE.x)] <- 0
+  monthTradeBalance$FREQ.x[is.na(monthTradeBalance$FREQ.x)] <- "M"
+  monthTradeBalance$TRADE_FLOW.x[is.na(monthTradeBalance$TRADE_FLOW.x)] <- "X"
+  
   monthTradeBalance$tradeBalance <- monthTradeBalance$OBS_VALUE.x - monthTradeBalance$OBS_VALUE.y
   
   monthTradeBalance_df <- monthTradeBalance %>%
