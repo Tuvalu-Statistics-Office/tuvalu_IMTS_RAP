@@ -2,25 +2,24 @@
 library(pivottabler)
 # Import by Country
 
-importByCountry <- dbGetQuery(mydb, "SELECT [SELECTED COE] AS country, 
+importByCountry <- dbGetQuery(mydb, "SELECT [coeSelected] AS country, 
                                             sum(CIF) AS Value 
-                                     FROM import 
+                                     FROM impo 
                                      GROUP BY country")
 
 # get total import for purpose of calculating the percentage per country
 totImport <- dbGetQuery(mydb, "SELECT Year, 
                                       sum(CIF) AS Value 
-                               FROM import 
+                               FROM impo 
                                WHERE Year > 2000
                                GROUP BY Year")
 
 # Add total import to the table for purpose of calculating the percentage
 importByCountry$total <- totImport$Value
-importByCountry$percent <- (importByCountry$Value / importByCountry$total) * 100
-importByCountry$percent <- round(importByCountry$percent, 2)
+importByCountry$percent <- round((importByCountry$Value / importByCountry$total) * 100, 2)
+importByCountry$country[is.na(importByCountry$country)] <- "99 - Other Country"
 
 # Remove rows with missing value
-importByCountry <- importByCountry[complete.cases(importByCountry), ]
 importByCountry <- importByCountry %>%
   select(country, Value, percent) %>%
   arrange(desc(percent))
@@ -32,7 +31,7 @@ tradeCountry <- function(importCountry_pie){
   importCountry_pie <- ggplot(importByCountry, aes(x = "", y = percent, fill = country)) +
     geom_bar(stat = "identity", width = 1) +
     coord_polar(theta = "y") +
-    labs(title = "Import by Country (%)") +
+    labs(title = "Import by Country") +
     theme_void() # Remove unnecessary elements
     
     

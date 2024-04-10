@@ -1,32 +1,27 @@
-####Data Processing and Cleaning ####
-
-#Load required libraries
-library(dplyr)
-library(readxl)
-library(openxlsx)
-library(tidyr)
-library(RSQLite)
-library(lubridate) #Date conversions and manipulations
-
-#Dynamic directory path mapping
-repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
-setwd(repository)
+#Referencing the setup source file
+source("setup.R")
 
 #Connect to a MySQLite database which will be used for reporting
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
-imports <- dbGetQuery(mydb, "SELECT * FROM import")
 
 #### *************************************** DATA PREPARATION ************************************************* #### 
 
 impo <- read.csv("data/import.csv")
 selCountry <- read.csv("other/selCountry.csv")
-import <- read_excel("data/import.xlsx")
+#import <- read_excel("data/import.xlsx")
 export <- read_excel("data/export.xlsx")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
 hsClass <- read.csv("other/importClassification.csv")
-
 hsClass$hs2 <- sprintf("%0*d", 2, hsClass$hs2)
+
+#Write the tables to the SQLite database exept for the impo table
+
+dbWriteTable(mydb, "export", export, overwrite = TRUE)
+dbWriteTable(mydb, "selCountry", selCountry, overwrite = TRUE)
+dbWriteTable(mydb, "country", country, overwrite = TRUE)
+dbWriteTable(mydb, "countries", countries, overwrite = TRUE)
+dbWriteTable(mydb, "hsClass", hsClass, overwrite = TRUE)
 
 
 #Rename the columns to follow the R naming conventions 
@@ -99,41 +94,41 @@ dbWriteTable(mydb, "pImport", pImport, overwrite = TRUE)
 #Run queries needed for merging
 hs4_import <- dbGetQuery(mydb, "SELECT impo.Tariff,
                                       pImport.hs4,  
-                                      pImport.Code,
+                                      pImport.prinCode,
                                       COUNT(Tariff) AS freq
                                FROM impo
                                INNER JOIN pImport ON impo.hs4 = pImport.hs4
-                               GROUP BY impo.Tariff, pImport.hs4, pImport.Code  
+                               GROUP BY impo.Tariff, pImport.hs4, pImport.prinCode  
                         ")
 
 hs2_import <- dbGetQuery(mydb, "SELECT impo.Tariff,
                                        pImport.hs4,  
-                                       pImport.Code,
+                                       pImport.prinCode,
                                        COUNT(Tariff) AS freq
                                 FROM impo
-                                INNER JOIN pImport ON impo.hs2 = pImport.Code
-                                GROUP BY impo.Tariff, pImport.hs4, pImport.Code  
+                                INNER JOIN pImport ON impo.hs2 = pImport.prinCode
+                                GROUP BY impo.Tariff, pImport.hs4, pImport.prinCode  
                          ")
 
 pImportDesc <- read.csv("other/pImportDesc.csv")
 
 hs_pImport_append <- rbind(hs2_import, hs4_import)
-hs_pImport_append_Desc <- merge(hs_pImport_append, pImportDesc, by = "CODE")
+hs_pImport_append_Desc <- merge(hs_pImport_append, pImportDesc, by = "prinCode")
 
 hs_pImport_append_Desc <- hs_pImport_append_Desc %>%
-  select(tariff, CODE, specs)
+  select(tariff, prinCode, prinSpecs)
 
 impo_Tariff_unique <- impo %>%
   group_by(tariff) %>%
   summarise(totCount = n())
 
-impo_Tariff_unique_Desc <- merge(impo_Tariff_unique, hs_pImport_append_Desc, all = TRUE)
-impo <- merge(impo, impo_Tariff_unique_Desc, all = TRUE)
+impo_Tariff_unique_Desc <- merge(impo_Tariff_unique, hs_pImport_append_Desc, by="tariff", all = TRUE)
+impo <- merge(impo, impo_Tariff_unique_Desc, by = "tariff", all = TRUE)
 impo <- impo[, -which(names(impo) == "totCount")]
 
 #Replace NA with other
-impo$CODE[is.na(impo$CODE)] <- 9999
-impo$specs[is.na(impo$specs)] <- "Other imports"
+impo$prinCode[is.na(impo$prinCode)] <- 9999
+impo$prinSpecs[is.na(impo$prinSpecs)] <- "Other imports"
 
 # Create an auto-incrementing column using row_number()
 impo <- impo %>% 
@@ -143,10 +138,12 @@ impo <- impo %>%
 colnames(impo)[colnames(impo) == "uomCode2"] <- "qtywgt"
 dbWriteTable(mydb, "impo", impo, overwrite = TRUE)
 
-
+#************************************ Checking for Outliers *********************************** ####
 
 #Compute Unit Value by taking CIF and dividing quantity/weight/volume
-impo$unitValue <- round((impo$cif / impo$qtywgt), 2)
+impo$qty <- as.numeric(as.vector(impo$tct))
+
+impo$unitValue <- round((impo$cif / impo$qty), 2)
 
 #Construct the summary table
 imports_check <- impo %>%
@@ -157,15 +154,17 @@ imports_check <- impo %>%
             medianValue = round(median(unitValue), 2),
             frquency = n()
             )
+imports_check$mean_median_diff <- imports_check$meanValue - imports_check$medianValue
+
 
 #Determining the Upper and Lower bounds using mean
-imports_check$mean_lower_value <- round(imports_check$meanValue - (imports_check$meanValue * 10/100), 2)
-imports_check$mean_upper_value <- round(imports_check$meanValue + (imports_check$meanValue * 10/100), 2)
+imports_check$mean_lower_value <- round(imports_check$meanValue - (imports_check$meanValue * 5/100), 2)
+imports_check$mean_upper_value <- round(imports_check$meanValue + (imports_check$meanValue * 5/100), 2)
 imports_check$diff_upper_lower_mean <- imports_check$mean_upper_value - imports_check$mean_lower_value
 
 #Determining the Upper and Lower bounds using median
-imports_check$median_lower_value <- round(imports_check$medianValue - (imports_check$medianValue * 10/100), 2)
-imports_check$median_upper_value <- round(imports_check$medianValue + (imports_check$medianValue * 10/100), 2)
+imports_check$median_lower_value <- round(imports_check$medianValue - (imports_check$medianValue * 5/100), 2)
+imports_check$median_upper_value <- round(imports_check$medianValue + (imports_check$medianValue * 5/100), 2)
 imports_check$diff_upper_lower_median <- imports_check$median_upper_value - imports_check$median_lower_value
 
 
@@ -177,25 +176,17 @@ imports_check_rem_freq_one <- imports_check %>%
 imports_chk <- imports_check_rem_freq_one %>%
   select(tariff, medianValue, median_lower_value, median_upper_value, diff_upper_lower_median)
 
-imports_chk_imports_merge <- merge(imports, imports_chk, by = "tariff", all = TRUE)
-imports_chk_imports_merge$myUnitValue <- round(imports_chk_imports_merge$CIF / imports_chk_imports_merge$qtywgt, 2)
+imports_chk_imports_merge <- merge(impo, imports_chk, by = "tariff", all = TRUE)
+imports_chk_imports_merge$myUnitValue <- round(imports_chk_imports_merge$cif / imports_chk_imports_merge$qtywgt, 2)
 
 write.csv(imports_chk_imports_merge, "processing/imports_chk.csv", row.names = FALSE)
 
 
 write.csv(imports_check_rem_freq_one, "output/HS_checks.csv", row.names = FALSE)
-write.csv(imports, "c:/temp/imports.csv", row.names = FALSE)
-
-#Example where no checking should be done
-boxCheck_2043000 <- imports %>%
-  filter(tariff == 2043000
-
-)
-
-boxplot(boxCheck_2043000$unitValue)
+#write.csv(imports, "c:/temp/imports.csv", row.names = FALSE)
 
 #Example where checking should be done
-boxCheck_19053100 <- imports %>%
+boxCheck_19053100 <- impo %>%
   filter(tariff == 19053100
          
   )
@@ -204,7 +195,7 @@ boxplot(boxCheck_19053100$unitValue)
 
 
 #Example where checking should be done
-boxCheck_27101990 <- imports %>%
+boxCheck_27101990 <- impo %>%
   filter(tariff == 27101990
          
   )
@@ -213,7 +204,7 @@ boxplot(boxCheck_27101990$unitValue)
 
 
 #Example where checking should be done
-boxCheck_39249000 <- imports %>%
+boxCheck_39249000 <- impo %>%
   filter(tariff == 39249000
          
   )
@@ -222,7 +213,7 @@ boxplot(boxCheck_39249000$unitValue)
 
 
 #Example where checking should be done
-boxCheck_82141000 <- imports %>%
+boxCheck_82141000 <- impo %>%
   filter(tariff == 82141000
          
   )

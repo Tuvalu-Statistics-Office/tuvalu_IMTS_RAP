@@ -1,14 +1,6 @@
-#Load required libraries
-library(dplyr)
-library(readxl)
-library(openxlsx)
-library(tidyr)
-library(RSQLite)
-library(lubridate) #Date conversions and manipulations
+#Referencing the setup source file
+source("setup.R")
 
-#Dynamic directory path mapping
-repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
-setwd(repository)
 
 #Connect to a MySQLite database which will be used for reporting
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")

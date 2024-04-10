@@ -1,14 +1,5 @@
-#Load Library
-library(officer)
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(pivottabler)
-library(RSQLite)
-
-#Directory path
-repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
-setwd(repository)
+#Referencing the setup source file
+source("setup.R")
 
 #Connect to a MySQLite database which will be used for reporting
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")

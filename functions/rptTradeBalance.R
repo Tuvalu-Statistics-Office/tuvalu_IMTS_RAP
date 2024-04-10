@@ -1,22 +1,22 @@
 #### Calculating the Trade Balances ####
 
 #Monthly Trade Balances
-imp <- dbGetQuery(mydb, "SELECT import.Year, import.Month, tblmonth.monthName AS monthName, 
-                                        round(sum(import.[cif]/1000),0) AS Value 
-                                 FROM import
-                                 INNER JOIN tblmonth ON import.Month = tblMonth.month
-                                 WHERE import.Year > 2000
-                                 GROUP BY import.Year, import.Month
+imp <- dbGetQuery(mydb, "SELECT impo.Year, tblmonth.Month, tblmonth.monthName AS monthName,
+                                 'Import' AS type,
+                                        round(sum(impo.[cif]/1000),0) AS Value 
+                                 FROM impo
+                                 INNER JOIN tblmonth ON impo.Month = tblMonth.month
+                                 WHERE impo.Year > 2000
+                                 GROUP BY impo.Year, tblmonth.Month
                           ")
 
-imp$type <- "Import"
-
-exp <- dbGetQuery(mydb, "SELECT export.Year, export.Month, tblmonth.monthName AS monthName, 
+exp <- dbGetQuery(mydb, "SELECT export.Year, tblmonth.Month, tblmonth.monthName AS monthName,
+                                 'Export' AS type,
                                         round(sum(export.[cif]/1000),0) AS Value 
                                  FROM export
                                  INNER JOIN tblmonth ON export.Month = tblMonth.month
                                  WHERE export.Year > 2000
-                                 GROUP BY export.Year, export.Month
+                                 GROUP BY export.Year, tblmonth.Month
                           ")
 
 #Generating the Monthly Trade Balance table
@@ -34,12 +34,13 @@ monthlyBalance <- function(balMonthly){
     summarise(export = sum(Value))
   
   balMonthly <- merge(impBal_mh, expBal_mh, by = "Month", all = TRUE)
-  balMonthly[is.na(balMonthly)] <- 0
+  balMonthly$export[is.na(balMonthly$export)] <- 0
   
+  #Calculate Trade balance
   balMonthly$balance <- balMonthly$export - balMonthly$import
   balMonthly <- balMonthly %>%
-    select(monthName.x, import, export, balance)
-  colnames(balMonthly)[1] <- "Month"
+    select(monthName.x, import, export, balance) %>%
+    rename(Month = monthName.x)
   
   balMonthly$Month <- factor(balMonthly$Month, levels = month.name)
   

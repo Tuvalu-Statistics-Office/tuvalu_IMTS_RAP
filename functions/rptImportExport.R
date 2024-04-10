@@ -1,18 +1,18 @@
 #### Calculating the total Imports and Exports ####
 #Gathering data from SQLite database needed to compute trade balances 
 
-importMonth <- dbGetQuery(mydb, "SELECT import.Year, import.Month, tblmonth.monthName AS importMonth, 
-                                        sum(import.[Invoice Value]) AS importTotal 
-                                 FROM import
-                                 INNER JOIN tblmonth ON import.Month = tblMonth.month
-                                 WHERE import.Year > 2000
-                                 GROUP BY import.Year, import.Month
+importMonth <- dbGetQuery(mydb, "SELECT impo.Year, tblmonth.Month, tblmonth.monthName AS importMonth, 
+                                        sum(impo.cif) AS importTotal 
+                                 FROM impo
+                                 INNER JOIN tblmonth ON impo.Month = tblMonth.month
+                                 WHERE impo.Year > 2000
+                                 GROUP BY impo.Year, impo.Month
                           ")
 
 #Export by Month Summary
 
-exportMonth <- dbGetQuery(mydb, "SELECT export.Year, export.Month, tblmonth.monthName AS exportMonth, 
-                                        sum(export.[Invoice Value]) AS exportTotal 
+exportMonth <- dbGetQuery(mydb, "SELECT export.Year, tblmonth.Month, tblmonth.monthName AS exportMonth, 
+                                        sum(export.CIF) AS exportTotal 
                                  FROM export
                                  INNER JOIN tblmonth ON export.Month = tblMonth.month
                                  WHERE export.Year > 2000
@@ -20,29 +20,50 @@ exportMonth <- dbGetQuery(mydb, "SELECT export.Year, export.Month, tblmonth.mont
                           ")
 
 #Import Analysis
-imports_analysis <- dbGetQuery(mydb, "SELECT import.Year,
+imports_analysis <- dbGetQuery(mydb, "SELECT impo.Year,
                                                tblmonth.Month AS monthID,  
                                                tblmonth.monthName AS Month,
-                                               SUM(import.CIF) AS totImport
-                                        FROM import
-                                        INNER JOIN tblmonth on import.Month = tblmonth.Month
-                                        WHERE import.Year > 2000
-                                        GROUP BY import.Year, monthID
+                                               SUM(impo.CIF) AS totImport
+                                        FROM impo
+                                        INNER JOIN tblmonth on impo.Month = tblmonth.Month
+                                        WHERE impo.Year > 2000
+                                        GROUP BY impo.Year, monthID
                                         ORDER BY Year, MonthID
                                  ")
+
+exp <- dbGetQuery(mydb, "SELECT export.Year, export.Month, tblmonth.monthName AS monthName,
+                                'Export' AS type,      
+                                        round(sum(export.[cif]/1000),0) AS Value 
+                                 FROM export
+                                 INNER JOIN tblmonth ON export.Month = tblMonth.month
+                                 WHERE export.Year > 2000
+                                 GROUP BY export.Year, export.Month
+                          ")
+
+imp <- dbGetQuery(mydb, "SELECT import.Year, import.Month, tblmonth.monthName AS monthName,
+                                 'Import' AS type,
+                                        round(sum(import.[cif]/1000),0) AS Value 
+                                 FROM import
+                                 INNER JOIN tblmonth ON import.Month = tblMonth.month
+                                 WHERE import.Year > 2000
+                                 GROUP BY import.Year, import.Month
+                          ")
 
 
 #Import by Month Summary
 importExport <- function(importExport_tab){
   
   importExport <- merge(importMonth, exportMonth, by = c("Year", "Month"), all = TRUE)
+  importExport$exportTotal[is.na(importExport$exportTotal)] <- 0
   importExport$Balance <- importExport$exportTotal - importExport$importTotal
   
   impExpBal <- importExport %>%
-    select(Year, importMonth, importTotal, exportTotal)
-  colnames(impExpBal)[2] <- "Month"
-  colnames(impExpBal)[3] <- "Import"
-  colnames(impExpBal)[4] <- "Export"
+    select(Year, importMonth, importTotal, exportTotal, Balance) %>%
+    rename(
+      Month = importMonth,
+      Import = importTotal,
+      Export = exportTotal
+    )
   
   importExport_tab <- impExpBal
   
@@ -54,7 +75,6 @@ importExport <- function(importExport_tab){
 #producing the ggplot of the Balance of Trade
 importExport_GG <- function(imexGG){
   
-  exp$type <- "Export"
   impexpGG <- rbind(imp, exp)
   
   impexpGG$monthName <- factor(impexpGG$monthName, levels = month.name)

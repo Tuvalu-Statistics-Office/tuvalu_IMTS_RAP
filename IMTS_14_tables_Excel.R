@@ -1,6 +1,6 @@
-#Load libraries
-library(pivottabler)
-library(openxlsx)
+#Referencing the setup source file
+source("setup.R")
+
 
 #Default table Styling
 

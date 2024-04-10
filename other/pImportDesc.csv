@@ -1,7 +1,7 @@
-CODE,NUM,specs
-02,1,"Meat and edible offal, incl poultry, fresh, chilled or frozen"
-04,2,"Dairy produce, eggs and honey"
-07,3,Edible vegetables
+prinCode,NUM,prinSpecs
+2,1,"Meat and edible offal, incl poultry, fresh, chilled or frozen"
+4,2,"Dairy produce, eggs and honey"
+7,3,Edible vegetables
 0901-02,4,Coffee and tea
 1006,5,Rice
 1101,6,Wheat flour 

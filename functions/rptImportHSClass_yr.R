@@ -1,13 +1,13 @@
 #### Reporting by HS Classifications ####
 
 #SQL query to get import by current year
-importHSClass <- dbGetQuery(mydb, "SELECT import.Year, 
+importHSClass <- dbGetQuery(mydb, "SELECT impo.Year, 
                                           hsclass.hsGroup,
-                                          hsclass.Description,
-                                          sum(import.CIF) AS Value
-                                   FROM import
-                                   INNER JOIN hsclass ON import.HS2 = hsclass.HS2
-                                   GROUP BY import.Year,hsclass.hsGroup, hsclass.Description
+                                          hsclass.hsDescription,
+                                          sum(impo.cif) AS Value
+                                   FROM impo
+                                   INNER JOIN hsclass ON impo.hs2 = hsclass.HS2
+                                   GROUP BY impo.Year, hsclass.hsGroup, hsclass.hsDescription
                             
                             ")
 #Remove records which contain NULL values
@@ -15,7 +15,7 @@ importHSClass <- importHSClass[complete.cases(importHSClass), ]
 
 totImport <- dbGetQuery(mydb, "SELECT year, 
                                       sum(CIF) as Value 
-                               FROM import 
+                               FROM impo 
                                WHERE Year > 2000
                                GROUP BY Year
                                ")
