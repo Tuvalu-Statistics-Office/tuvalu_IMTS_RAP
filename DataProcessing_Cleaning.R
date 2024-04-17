@@ -221,4 +221,4 @@ boxCheck_82141000 <- impo %>%
 boxplot(boxCheck_82141000$unitValue)
 
 
-#dbDisconnect(mydb)
+dbDisconnect(mydb)

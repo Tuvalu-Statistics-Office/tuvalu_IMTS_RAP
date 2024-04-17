@@ -5,6 +5,8 @@
 table2 <- function(statFrame){
   statFrame <- data.frame()
   #### Import by Classifications 2_M #####
+  impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+  hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
   
   # Annual Data preparation
   
@@ -101,7 +103,6 @@ table2 <- function(statFrame){
   #Add the rest of the columns
   statFrame$GEO_PICT = "TV"
   statFrame$INDICATOR = "AMT"
-  statFrame$COMMODITY = "_T"
   statFrame$COUNTERPART = "_T"
   statFrame$TRANSPORT = "_T"
   statFrame$CURRENCY = "DOM"
@@ -110,6 +111,9 @@ table2 <- function(statFrame){
   statFrame$OBS_STATUS = ""
   statFrame$DATA_SOURCE = ""
   statFrame$OBS_COMMENT = ""
+  
+  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
+  statFrame <- statFrame[, order]
   
   return(statFrame)
   

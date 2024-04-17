@@ -6,6 +6,9 @@ table5 <- function(statFrame) {
   
   statFrame <- data.frame()
   # Import Transport mode Annual
+  
+  impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+  
   importTransportAnnual <- impo %>%
     group_by(Office, Year) %>%
     summarise(OBS_VALUE = sum(cif))
@@ -68,6 +71,10 @@ table5 <- function(statFrame) {
   statFrame$DATA_SOURCE <- ""
   statFrame$OBS_COMMENT <- ""
   statFrame$COUNTERPART <- "_T"
+  
+  #Re-ordering of the columns
+  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
+  statFrame <- statFrame[, order]
   
   return(statFrame)
   

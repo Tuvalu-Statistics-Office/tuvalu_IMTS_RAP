@@ -5,6 +5,8 @@
 table3 <- function(statFrame){
   statFrame <- data.frame()
   #### Import by Classifications 2_M #####
+  impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+  export <- dbGetQuery(mydb, "SELECT * FROM export")
   
   # Annual Data preparation
   
@@ -72,6 +74,10 @@ table3 <- function(statFrame){
   statFrame$OBS_STATUS = ""
   statFrame$DATA_SOURCE = ""
   statFrame$OBS_COMMENT = ""
+  
+  #Re-ordering of the columns
+  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
+  statFrame <- statFrame[, order]
   
   return(statFrame)
   

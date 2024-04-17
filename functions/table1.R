@@ -4,6 +4,8 @@
 
 table1 <- function(statFrame){
   statFrame <- data.frame()
+  impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+
   
   #### Annual Import Summary - 1_BOT ####
   

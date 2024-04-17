@@ -1,6 +1,8 @@
 #Referencing the setup source file
 source("setup.R")
 
+#Establish connection to SQLite database
+mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 #Default table Styling
 
@@ -240,3 +242,6 @@ pt$writeToExcelWorksheet(wb=wb, wsName="Table8B",
 
 #Save Final Excel Workbook to output folder
 saveWorkbook(wb, file="output/IMTS_14tables_Releases.xlsx", overwrite = TRUE)
+
+#Close connection the SQLite database
+dbDisconnect(mydb)

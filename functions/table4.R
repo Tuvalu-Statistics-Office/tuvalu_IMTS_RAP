@@ -7,6 +7,9 @@
 table4 <- function(statFrame){
   
   statFrame <- data.frame()
+  impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+  
+  
   importPartnerAnnual <- impo %>%
     group_by(coeID, Year) %>%
     summarise(OBS_VALUE = sum(cif))
@@ -79,6 +82,10 @@ table4 <- function(statFrame){
   statFrame$OBS_STATUS <- ""
   statFrame$DATA_SOURCE <- ""
   statFrame$OBS_COMMENT <- ""
+  
+  #Re-ordering of the columns
+  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
+  statFrame <- statFrame[, order]
   
   return(statFrame)
 

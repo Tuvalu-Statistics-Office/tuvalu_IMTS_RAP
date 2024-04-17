@@ -88,7 +88,7 @@ table5A <- function(table5A){
                                       tblprinImports.PRINC_desc AS Commodity,
                                       sum(impo.CIF) AS Value
                                FROM impo
-                               INNER JOIN tblprinImports ON impo.CODE = tblprinImports.PRINC_IMP
+                               INNER JOIN tblprinImports ON impo.prinCode = tblprinImports.PRINC_IMP
                                WHERE impo.Year > 2000
                                GROUP BY impo.Year, Commodity
                         ")
@@ -103,7 +103,7 @@ table5B <- function(table5B){
                                       tblprinImports.PRINC_desc AS Commodity,
                                       sum(impo.CIF) AS Value
                                FROM impo
-                               INNER JOIN tblprinImports ON impo.CODE = tblprinImports.PRINC_IMP
+                               INNER JOIN tblprinImports ON impo.prinCode = tblprinImports.PRINC_IMP
                                INNER JOIN tblmonth ON impo.Month = tblmonth.Month
                                WHERE impo.Year > 2000
                                GROUP BY Year, impo.Month, monthName, Commodity

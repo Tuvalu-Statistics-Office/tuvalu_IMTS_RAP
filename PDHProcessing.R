@@ -16,11 +16,11 @@ principalImports <- read.csv("other/principalImports.csv")
 
 #Reformatting HS2 column into having a width of 2 digit
 width <- 2
-hsClass$hs2 <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
+hsClass$hs2Code <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
 import$HS2 <- as.numeric(import$HS2)
-import$HS2 <- sprintf(paste0('%0', width, 'd'), import$HS2)
+import$hs2Code <- sprintf(paste0('%0', width, 'd'), import$HS2)
 colnames(export)[colnames(export) == "Chapter"] <- "HS2"
-export$HS2 <- sprintf(paste0('%0', width, 'd'), export$HS2)
+export$hs2Code <- sprintf(paste0('%0', width, 'd'), export$HS2)
 
 #Reformatting month to include zero infront of 1 digit numbers
 import$Month <- sprintf("%02d", import$Month)
@@ -33,8 +33,8 @@ curMonth <- head(curMonth, 1)
 curMonth <- curMonth$Month
 
 #merge imports and exports with hs classes
-import_class <- merge(import, hsClass, by = "hs2")
-export_class <- merge(export, hsClass, by = "hs2")
+import_class <- merge(import, hsClass, by = "hs2Code")
+export_class <- merge(export, hsClass, by = "hs2Code")
 
 # Define TIME_PERIOD for later use
 import$yearMonth <- paste(import$Year, import$Month, sep = "-")
@@ -97,3 +97,6 @@ final_data <- final_data[, columnOrder]
 
 # Write final data to csv file
 write.csv(final_data, "output/IMTS_DOT_STAT_TV.csv", row.names = FALSE)
+
+#Close connection the SQLite database
+dbDisconnect(mydb)
