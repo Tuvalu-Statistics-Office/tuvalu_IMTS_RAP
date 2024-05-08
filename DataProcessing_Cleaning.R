@@ -13,6 +13,9 @@ export <- read_excel("data/export.xlsx")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
 hsClass <- read.csv("other/importClassification.csv")
+principalImports <- read.csv("other/principalImports.csv")
+
+
 hsClass$hs2 <- sprintf("%0*d", 2, hsClass$hs2)
 
 #Write the tables to the SQLite database exept for the impo table
