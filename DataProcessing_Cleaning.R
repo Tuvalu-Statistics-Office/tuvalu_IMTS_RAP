@@ -223,5 +223,45 @@ boxCheck_82141000 <- impo %>%
 
 boxplot(boxCheck_82141000$unitValue)
 
+#-------------------------------------------------------------------------------
+#     EXPORTS
+#-------------------------------------------------------------------------------
+#Getting year and month
+export$Year <- year(export$`SAD Date`)
+export$Month <- month(export$`SAD Date`)
+
+#Change values for EX 1
+export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
+
+#Getting country names
+colnames(export)[colnames(export) == "COD"] <- "coeID"
+export <- merge(export, selCountry, by = "coeID", all = TRUE)
+export <- export[!is.na(export$Tariff), ]
+colnames(export)[colnames(export) == "countryDesc"] <- "Country"
+colnames(export)[colnames(export) == "region"] <- "Region"
+colnames(export)[colnames(export) == "CIF"] <- "cif"
+
+#Getting hs classification descriptions
+hsClass <- read.csv("other/importClassification.csv")
+hsClass$hs2Code <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
+export$hs2Code <- sprintf(paste0('%0', width, 'd'), export$Chapter)
+export <- merge(export, hsClass, by = "hs2Code")
+export$mcif <- 0
+
+#Getting principle exports
+princ_x <- data.frame(
+  hs4 = c("7204","7311","9703","2710"),
+  princ_x_desc = c("Ferrous waste and scrap",
+                   "Containers for compressed or liquified gas",
+                   "Sculptures and statuary",
+                   "Mineral Fuel")
+)
+
+export$Tariff <- sprintf("%0*d", 8, export$Tariff)
+export$hs4 <- substr(export$Tariff, 1, 4)
+export <- merge(export, princ_x, by = "hs4", all = TRUE)
+export <- export[!is.na(export$Tariff), ]
+export$princ_x_desc[is.na(export$princ_x_desc)] <- "Other"
+dbWriteTable(mydb, "export", export, overwrite = TRUE)
 
 dbDisconnect(mydb)
