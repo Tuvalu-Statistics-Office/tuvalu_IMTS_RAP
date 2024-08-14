@@ -171,7 +171,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           WHERE Year = 2023 AND Month>=7 AND Month<=9
-                          GROUP BY Country")
+                          GROUP BY Year, Month, Country")
 tab6$Balance <- tab6$Export - tab6$Import
 
 pt <- PivotTable$new()
@@ -196,7 +196,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T6",
 tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           WHERE Year = 2023 AND Month>=7 AND Month<=9
-                          GROUP BY Region")
+                          GROUP BY Year, Month, Region")
 tab7$Balance <- tab7$Export - tab7$Import
 
 pt <- PivotTable$new()
@@ -221,7 +221,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T7",
 tab8 <- dbGetQuery(mydb,"SELECT Office, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           WHERE Year = 2023 AND Month>=7 AND Month<=9
-                          GROUP BY Office")
+                          GROUP BY Year, Month, Office")
 tab8$Balance <- tab8$Export - tab8$Import
 
 pt <- PivotTable$new()
