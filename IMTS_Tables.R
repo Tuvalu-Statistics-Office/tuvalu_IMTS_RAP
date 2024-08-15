@@ -52,7 +52,7 @@ dbWriteTable(mydb, "trade", trade, overwrite = TRUE)
 #------------------------------------------------------------------------------
 tab1 <- dbGetQuery(mydb, "SELECT Year, Month, sum(mcif) AS Import, sum(xcif) As Export
                           FROM trade
-                          WHERE Year = 2023 AND Month>=7 AND Month<=9
+                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month")
 tab1$tradeBal <- tab1$Export - tab1$Import
 pt <- PivotTable$new()
@@ -73,7 +73,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T1",
 #------------------------------------------------------------------------------
 tab2 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
                    FROM impo
-                   WHERE Year = 2023 AND Month>=7 AND Month<=9
+                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, Chapter")
 tab2$fullChpt <- paste0(tab2$Chapter,"-",tab2$Desc)
 
@@ -100,13 +100,13 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T2",
 #------------------------------------------------------------------------------
 tab3 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
                    FROM export
-                   WHERE Year = 2023 AND Month>=7 AND Month<=9
+                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, Chapter")
-tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
-
+#tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
+#Need to uncomment the line above when there is export data
 pt <- PivotTable$new()
 pt$addData(tab3)
-pt$addColumnDataGroups("fullChpt")
+pt$addColumnDataGroups("Chapter") #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
 pt$addRowDataGroups("Month")
 pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
@@ -122,7 +122,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T3",
 #------------------------------------------------------------------------------
 tab4 <- dbGetQuery(mydb,"SELECT princ_x_desc AS Commodity, Year, Month, sum(cif) AS Value
                    FROM export
-                   WHERE Year = 2023 AND Month>=7 AND Month<=9
+                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, princ_x_desc")
 pt <- PivotTable$new()
 pt$addData(tab4)
@@ -148,7 +148,7 @@ tab5 <- dbGetQuery(mydb, "SELECT impo.Year,
                                FROM impo
                                INNER JOIN tblprinImports ON impo.prinCode = tblprinImports.PRINC_IMP
                                INNER JOIN tblmonth ON impo.Month = tblmonth.Month
-                               WHERE impo.Year = 2023 AND impo.Month>=7 AND impo.Month<=9
+                               WHERE Year = 2024 AND impo.Month>=1 AND impo.Month<=6
                                GROUP BY Year, impo.Month, monthName, Commodity
                                ORDER BY Year, impo.Month
                         ")
@@ -170,7 +170,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 #------------------------------------------------------------------------------
 tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2023 AND Month>=7 AND Month<=9
+                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Country")
 tab6$Balance <- tab6$Export - tab6$Import
 
@@ -195,7 +195,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T6",
 #------------------------------------------------------------------------------
 tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2023 AND Month>=7 AND Month<=9
+                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Region")
 tab7$Balance <- tab7$Export - tab7$Import
 
@@ -220,7 +220,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T7",
 #------------------------------------------------------------------------------
 tab8 <- dbGetQuery(mydb,"SELECT Office, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2023 AND Month>=7 AND Month<=9
+                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Office")
 tab8$Balance <- tab8$Export - tab8$Import
 
