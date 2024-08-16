@@ -10,6 +10,8 @@ library(tidyverse)
 library(ggplot2)
 library(pivottabler)
 
-#Dynamic directory path mapping
-repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
-setwd(repository)
+#Global variable declarations
+hsdigits <- 8
+hs6digits <- 6
+hs4digits <- 4
+hs2digits <- 2

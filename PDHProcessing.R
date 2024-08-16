@@ -6,38 +6,38 @@ source("setup.R")
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 # Load the import excel file into the R working environment
-import <- read_excel("data/import.xlsx")
-export <- read_excel("data/export.xlsx")
-country <- read.csv("other/country.csv")
-countries <- read.csv("other/countries.csv")
-hsClass <- read.csv("other/importClassification.csv")
-principalImports <- read.csv("other/principalImports.csv")
+#import <- read_excel("data/import.xlsx")
+#export <- read_excel("data/export.xlsx")
+#country <- read.csv("other/country.csv")
+#countries <- read.csv("other/countries.csv")
+#hsClass <- read.csv("other/importClassification.csv")
+#principalImports <- read.csv("other/principalImports.csv")
 
 
 #Reformatting HS2 column into having a width of 2 digit
-width <- 2
-hsClass$hs2Code <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
-import$HS2 <- as.numeric(import$HS2)
-import$hs2Code <- sprintf(paste0('%0', width, 'd'), import$HS2)
-colnames(export)[colnames(export) == "Chapter"] <- "HS2"
-export$hs2Code <- sprintf(paste0('%0', width, 'd'), export$HS2)
+#width <- 2
+#hsClass$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), hsClass$hs2)
+#import$HS2 <- as.numeric(import$HS2)
+#import$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), import$HS2)
+#colnames(export)[colnames(export) == "Chapter"] <- "HS2"
+#export$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), export$HS2)
 
 #Reformatting month to include zero infront of 1 digit numbers
-import$Month <- sprintf("%02d", import$Month)
+#import$Month <- sprintf("%02d", import$Month)
 
-curYear <- max(import$Year)
-curMonth <- import %>%
+curYear <- max(impo$Year)
+curMonth <- impo %>%
               select(Year, Month) %>%
               arrange(desc(Year), desc(Month))
 curMonth <- head(curMonth, 1)
 curMonth <- curMonth$Month
 
 #merge imports and exports with hs classes
-import_class <- merge(import, hsClass, by = "hs2Code")
-export_class <- merge(export, hsClass, by = "hs2Code")
+import_class <- merge(impo, hsClass, by = "hs2")
+export_class <- merge(export, hsClass, by = "hs2")
 
 # Define TIME_PERIOD for later use
-import$yearMonth <- paste(import$Year, import$Month, sep = "-")
+impo$yearMonth <- paste(impo$Year, impo$Month, sep = "-")
 
 # Reformat Export date to get proper date and define Year and Month of export
 export$date <- as.Date(export$`SAD Date`)
@@ -50,7 +50,7 @@ export$Month <- sprintf("%02d", export$Month)
 export$yearMonth <- paste(export$Year, export$Month, sep = "-")
 
 #Write Import and Export tables into the sqlite database
-dbWriteTable(mydb, "import", import, overwrite = TRUE)
+dbWriteTable(mydb, "impo", import, overwrite = TRUE)
 dbWriteTable(mydb, "export", export, overwrite = TRUE)
 dbWriteTable(mydb, "hsclass", hsClass, overwrite = TRUE)
 dbWriteTable(mydb, "tblprinImports", principalImports, overwrite = TRUE)

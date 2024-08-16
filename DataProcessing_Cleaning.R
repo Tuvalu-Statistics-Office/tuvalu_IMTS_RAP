@@ -1,3 +1,7 @@
+#Dynamic directory path mapping
+repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
+setwd(repository)
+
 #Referencing the setup source file
 source("setup.R")
 
@@ -8,7 +12,6 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 impo <- read.csv("data/import.csv")
 selCountry <- read.csv("other/selCountry.csv")
-#import <- read_excel("data/import.xlsx")
 export <- read_excel("data/export.xlsx")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
@@ -16,18 +19,18 @@ hsClass <- read.csv("other/importClassification.csv")
 principalImports <- read.csv("other/principalImports.csv")
 
 
-hsClass$hs2 <- sprintf("%0*d", 2, hsClass$hs2)
+hsClass$hs2 <- sprintf("%0*d", hs2digits, hsClass$hs2)
 
 #Write the tables to the SQLite database exept for the impo table
-
-dbWriteTable(mydb, "export", export, overwrite = TRUE)
 dbWriteTable(mydb, "selCountry", selCountry, overwrite = TRUE)
 dbWriteTable(mydb, "country", country, overwrite = TRUE)
 dbWriteTable(mydb, "countries", countries, overwrite = TRUE)
 dbWriteTable(mydb, "hsClass", hsClass, overwrite = TRUE)
 
+#******************************************************************************* 
+#*****************  Import table preparation ***********************************
+#*******************************************************************************
 
-#Rename the columns to follow the R naming conventions 
 impo <- impo %>%
   rename(sadDate = SAD.Date,
          sadNo = SAD..,
@@ -68,24 +71,20 @@ impo$yearMonth <- paste(impo$Year, impo$MonthID, sep = "-")
 #Drop records where the Tariff has NA value
 impo <- impo[!is.na(impo$tariff), ]
 
-#Reformat tariff column to 8 digit
-digits <- 8
-impo$tariff <- sprintf("%0*d", digits, impo$tariff)
+impo$tariff <- sprintf("%0*d", hsdigits, impo$tariff)
 
 #Extract and Create HS2 and HS4 and Chapter columns
-impo$hs2 <- substr(impo$tariff, 1, 2)
-impo$Chapter <- substr(impo$tariff, 1, 2)
-impo$hs4 <- substr(impo$tariff, 1, 4)
-impo$hs6 <- substr(impo$tariff, 1, 6)
+impo$hs2 <- substr(impo$tariff, 1, hs2digits)
+impo$Chapter <- substr(impo$tariff, 1, hs2digits)
+impo$hs4 <- substr(impo$tariff, 1, hs4digits)
+impo$hs6 <- substr(impo$tariff, 1, hs6digits)
 
 #Merge main table with the Import by HS Classification
 impo <- merge(impo, hsClass)
 
-
-
 #Adding Principal imports to the main table
 pImport <- read.csv("other/prImport.csv")
-pImport$PM <- sprintf("%0*d", 4, pImport$PM)
+pImport$PM <- sprintf("%0*d", hs4digits, pImport$PM)
 
 colnames(pImport)[colnames(pImport) == "PM"] <- "hs4"
 colnames(pImport)[colnames(pImport) == "HS"] <- "myHS"
@@ -141,7 +140,7 @@ impo <- impo %>%
 colnames(impo)[colnames(impo) == "uomCode2"] <- "qtywgt"
 dbWriteTable(mydb, "impo", impo, overwrite = TRUE)
 
-#************************************ Checking for Outliers *********************************** ####
+#************************************ Checking for Outliers in imports *********************************** ####
 
 #Compute Unit Value by taking CIF and dividing quantity/weight/volume
 impo$qty <- as.numeric(as.vector(impo$tct))
@@ -243,8 +242,8 @@ colnames(export)[colnames(export) == "CIF"] <- "cif"
 
 #Getting hs classification descriptions
 hsClass <- read.csv("other/importClassification.csv")
-hsClass$hs2Code <- sprintf(paste0('%0', width, 'd'), hsClass$hs2)
-export$hs2Code <- sprintf(paste0('%0', width, 'd'), export$Chapter)
+hsClass$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), hsClass$hs2)
+export$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), export$Chapter)
 export <- merge(export, hsClass, by = "hs2Code")
 export$mcif <- 0
 
@@ -257,8 +256,8 @@ princ_x <- data.frame(
                    "Mineral Fuel")
 )
 
-export$Tariff <- sprintf("%0*d", 8, export$Tariff)
-export$hs4 <- substr(export$Tariff, 1, 4)
+export$Tariff <- sprintf("%0*d", hsdigits, export$Tariff)
+export$hs4 <- substr(export$Tariff, 1, hs4digits)
 export <- merge(export, princ_x, by = "hs4", all = TRUE)
 export <- export[!is.na(export$Tariff), ]
 export$princ_x_desc[is.na(export$princ_x_desc)] <- "Other"
