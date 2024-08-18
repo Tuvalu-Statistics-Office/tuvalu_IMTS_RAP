@@ -1,3 +1,7 @@
+#Dynamic directory path mapping
+repository <- file.path(dirname(rstudioapi::getSourceEditorContext()$path))
+setwd(repository)
+
 #Referencing the setup source file
 source("setup.R")
 
@@ -25,6 +29,9 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 #Reformatting month to include zero infront of 1 digit numbers
 #import$Month <- sprintf("%02d", import$Month)
 
+impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
+
 curYear <- max(impo$Year)
 curMonth <- impo %>%
               select(Year, Month) %>%
@@ -33,7 +40,7 @@ curMonth <- head(curMonth, 1)
 curMonth <- curMonth$Month
 
 #merge imports and exports with hs classes
-import_class <- merge(impo, hsClass, by = "hs2")
+#import_class <- merge(impo, hsClass, by = "hs2")
 export_class <- merge(export, hsClass, by = "hs2")
 
 # Define TIME_PERIOD for later use
