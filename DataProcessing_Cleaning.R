@@ -12,7 +12,6 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 impo <- read.csv("data/import.csv")
 selCountry <- read.csv("other/selCountry.csv")
-export <- read_excel("data/export.xlsx")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
 hsClass <- read.csv("other/importClassification.csv")
@@ -225,9 +224,25 @@ boxplot(boxCheck_82141000$unitValue)
 #-------------------------------------------------------------------------------
 #     EXPORTS
 #-------------------------------------------------------------------------------
+#Read in the export excel file
+export <- read_excel("data/export.xlsx")
+
 #Getting year and month
-export$Year <- year(export$`SAD Date`)
-export$Month <- month(export$`SAD Date`)
+export <- export |>
+  #Filter records that contain NA values
+  filter(!is.na(Tariff)) |>
+  #generate month, year and yearmonth columns
+  mutate(Year = year(`SAD Date`),
+         Month = month(`SAD Date`),
+         sMonth = sprintf("%02d", month(`SAD Date`)),
+         yearMonth = paste(year(`SAD Date`), sprintf("%02d", month(`SAD Date`)), sep = "-")
+         )
+
+#Reformat tariff to 8 digits and create hs2 and hs4 columns
+export$Tariff <- sprintf("%08d", export$Tariff)
+export$hs2Code <- substr(export$Tariff, 1, hs2digits)
+export$hs4 <- substr(export$Tariff, 1, hs4digits)
+export$Chapter <- sprintf("%02d", export$Chapter)
 
 #Change values for EX 1
 export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
@@ -235,15 +250,15 @@ export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
 #Getting country names
 colnames(export)[colnames(export) == "COD"] <- "coeID"
 export <- merge(export, selCountry, by = "coeID", all = TRUE)
-export <- export[!is.na(export$Tariff), ]
-colnames(export)[colnames(export) == "countryDesc"] <- "Country"
-colnames(export)[colnames(export) == "region"] <- "Region"
-colnames(export)[colnames(export) == "CIF"] <- "cif"
 
-#Getting hs classification descriptions
-hsClass <- read.csv("other/importClassification.csv")
-hsClass$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), hsClass$hs2)
-export$hs2Code <- sprintf(paste0('%0', hs2digits, 'd'), export$Chapter)
+#Renaming the columns
+export <- export |>
+  rename(
+    Country = coeSelected,
+    Region = regionSelected,
+    cif = CIF
+  )
+
 export <- merge(export, hsClass, by = "hs2Code")
 export$mcif <- 0
 
@@ -256,10 +271,7 @@ princ_x <- data.frame(
                    "Mineral Fuel")
 )
 
-export$Tariff <- sprintf("%0*d", hsdigits, export$Tariff)
-export$hs4 <- substr(export$Tariff, 1, hs4digits)
 export <- merge(export, princ_x, by = "hs4", all = TRUE)
-export <- export[!is.na(export$Tariff), ]
 export$princ_x_desc[is.na(export$princ_x_desc)] <- "Other"
 dbWriteTable(mydb, "export", export, overwrite = TRUE)
 
