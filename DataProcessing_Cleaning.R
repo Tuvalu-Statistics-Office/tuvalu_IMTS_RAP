@@ -272,6 +272,11 @@ princ_x <- data.frame(
 
 export <- merge(export, princ_x, by = "hs4", all = TRUE)
 export$princ_x_desc[is.na(export$princ_x_desc)] <- "Other"
+hsClass <- hsClass |>
+  rename(hs2Code = hs2)
+
+export <- merge(export, hsClass, by = "hs2Code")
+
 dbWriteTable(mydb, "export", export, overwrite = TRUE)
 
 dbDisconnect(mydb)

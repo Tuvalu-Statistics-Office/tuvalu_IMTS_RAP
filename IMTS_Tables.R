@@ -8,6 +8,13 @@ source("setup.R")
 #Establish connection to SQLite database
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
+#Declare variables to pass year and month for processing
+startYear = 2023
+endYear = 2023
+
+startMonth = 6
+endMonth = 8
+
 #Default table Styling
 
 tableTheme <- list(
@@ -38,7 +45,7 @@ imp1$xcif <- 0
 dbWriteTable(mydb, "imp1", imp1, overwrite = TRUE)
 
 exp1 <- dbGetQuery(mydb, "SELECT Office, `SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
-                   coeSelected AS Country,regionSelected AS Region, Month, Year, cif AS xcif
+                   Country,regionSelected AS Region, Month, Year, cif AS xcif
                    FROM export")
 dbWriteTable(mydb, "exp1", exp1, overwrite = TRUE)
 
@@ -52,8 +59,12 @@ dbWriteTable(mydb, "trade", trade, overwrite = TRUE)
 #------------------------------------------------------------------------------
 tab1 <- dbGetQuery(mydb, "SELECT Year, Month, sum(mcif) AS Import, sum(xcif) As Export
                           FROM trade
-                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month")
+
+#Apply filter to get the required records
+tab1 <- tab1 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
 tab1$tradeBal <- tab1$Export - tab1$Import
 pt <- PivotTable$new()
 pt$addData(tab1)
@@ -73,10 +84,13 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T1",
 #------------------------------------------------------------------------------
 tab2 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
                    FROM impo
-                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, Chapter")
-tab2$fullChpt <- paste0(tab2$Chapter,"-",tab2$Desc)
 
+#Apply filter to get the required records
+tab2 <- tab2 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
+tab2$fullChpt <- paste0(tab2$Chapter,"-",tab2$Desc)
 pt <- PivotTable$new()
 pt$addData(tab2)
 pt$addColumnDataGroups("fullChpt")
@@ -100,10 +114,14 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T2",
 #------------------------------------------------------------------------------
 tab3 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
                    FROM export
-                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, Chapter")
 #tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
 #Need to uncomment the line above when there is export data
+
+#Apply filter to get the required records
+tab3 <- tab3 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
 pt <- PivotTable$new()
 pt$addData(tab3)
 pt$addColumnDataGroups("Chapter") #change variable to 'fullChpt' when there is export data
@@ -122,8 +140,13 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T3",
 #------------------------------------------------------------------------------
 tab4 <- dbGetQuery(mydb,"SELECT princ_x_desc AS Commodity, Year, Month, sum(cif) AS Value
                    FROM export
-                   WHERE Year = 2024 AND Month>=1 AND Month<=6
                    GROUP BY Year, Month, princ_x_desc")
+
+#Apply filter to get the required records
+tab4 <- tab4 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
+
 pt <- PivotTable$new()
 pt$addData(tab4)
 pt$addColumnDataGroups("Year")
@@ -148,10 +171,14 @@ tab5 <- dbGetQuery(mydb, "SELECT impo.Year,
                                FROM impo
                                INNER JOIN tblprinImports ON impo.prinCode = tblprinImports.PRINC_IMP
                                INNER JOIN tblmonth ON impo.Month = tblmonth.Month
-                               WHERE Year = 2024 AND impo.Month>=1 AND impo.Month<=6
                                GROUP BY Year, impo.Month, monthName, Commodity
                                ORDER BY Year, impo.Month
                         ")
+#Apply filter to get the required records
+tab5 <- tab5 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
+
 pt <- PivotTable$new()
 pt$addData(tab5)
 pt$addColumnDataGroups("Year")
@@ -170,8 +197,12 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 #------------------------------------------------------------------------------
 tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Country")
+
+#Apply filter to get the required records
+tab6 <- tab6 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
 tab6$Balance <- tab6$Export - tab6$Import
 
 pt <- PivotTable$new()
@@ -195,8 +226,12 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T6",
 #------------------------------------------------------------------------------
 tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Region")
+
+#Apply filter to get the required records
+tab7 <- tab7 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
 tab7$Balance <- tab7$Export - tab7$Import
 
 pt <- PivotTable$new()
@@ -220,10 +255,13 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T7",
 #------------------------------------------------------------------------------
 tab8 <- dbGetQuery(mydb,"SELECT Office, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          WHERE Year = 2024 AND Month>=1 AND Month<=6
                           GROUP BY Year, Month, Office")
-tab8$Balance <- tab8$Export - tab8$Import
 
+#Apply filter to get the required records
+tab8 <- tab8 |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+
+tab8$Balance <- tab8$Export - tab8$Import
 pt <- PivotTable$new()
 pt$addData(tab8)
 pt$addRowDataGroups("Year")
