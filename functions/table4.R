@@ -22,28 +22,25 @@ table4 <- function(statFrame){
   importPartnerAnnual$FREQ <- "A"
   importPartnerAnnual$TRADE_FLOW <- "M"
   
-  
   #Export by Partner Countries
   exportPartnerAnnual <- export %>%
-    group_by(Year, COD) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    group_by(Year, coeID) %>%
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(exportPartnerAnnual)[colnames(exportPartnerAnnual) == "Year"] <- "TIME_PERIOD"
-  colnames(exportPartnerAnnual)[colnames(exportPartnerAnnual) == "COD"] <- "COUNTERPART"
+  colnames(exportPartnerAnnual)[colnames(exportPartnerAnnual) == "coeID"] <- "COUNTERPART"
   
   exportPartnerAnnual$FREQ <- "A"
   exportPartnerAnnual$TRADE_FLOW <- "X"
   
-  
   tradeByPartnerAnnual <- rbind(importPartnerAnnual, exportPartnerAnnual)
   tradeByPartnerAnnual$TIME_PERIOD <- as.character(tradeByPartnerAnnual$TIME_PERIOD)
   
-  
   # Import by partner country by month
   
-  importPartnerMonthly <- import %>%
-    group_by(COE, yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+  importPartnerMonthly <- impo %>%
+    group_by(coeID, yearMonth) %>%
+    summarise(OBS_VALUE = sum(cif))
   
   # Renaming columns
   
@@ -57,8 +54,8 @@ table4 <- function(statFrame){
   # Export by partner country by month
   
   exportPartnerMonthly <- export %>%
-    group_by(COD, yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    group_by(coeID, yearMonth) %>%
+    summarise(OBS_VALUE = sum(cif))
   
   # Renaming columns
   

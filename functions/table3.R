@@ -12,15 +12,12 @@ table3 <- function(statFrame){
   
   export_ann <- export %>%
     group_by(Year) %>%
-    summarise(totExport = sum(CIF))
+    summarise(totExport = sum(cif))
   
    
   exportHS <- export %>%
-    select(Year, Month, HS2, CIF) %>%
-    rename(hs2 = HS2,
-           cif = CIF
-           )
-  
+    select(Year, Month, hs2, cif)
+      
   exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
@@ -44,10 +41,8 @@ table3 <- function(statFrame){
   # Monthly data preparation
   
   exportYM <- export %>%
-    select(yearMonth, HS2, CIF) %>%
-    rename(hs2 = HS2,
-           cif = CIF
-           )
+    select(yearMonth, hs2, cif) 
+    
   
   exportHS_merge_class_YM <- merge(exportYM, hsClass, by = "hs2")
   

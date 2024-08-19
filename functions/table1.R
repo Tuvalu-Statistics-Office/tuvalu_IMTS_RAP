@@ -33,7 +33,7 @@ table1 <- function(statFrame){
   
   annualExport <- export %>%
     group_by(Year) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(annualExport)[colnames(annualExport) == "Year"] <- "TIME_PERIOD"
   annualExport$FREQ  = "A"
@@ -43,7 +43,7 @@ table1 <- function(statFrame){
   
   monthlyExport <- export %>%
     group_by(yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(monthlyExport)[colnames(monthlyExport) == "yearMonth"] <- "TIME_PERIOD"
   monthlyExport$FREQ  = "M"
@@ -83,6 +83,8 @@ table1 <- function(statFrame){
   balance <- rbind(tradeBalance_df, monthTradeBalance_df)
   
   statFrame <- rbind(imports, exports, balance)
+  statFrame <- statFrame |>
+    filter(!is.na(OBS_VALUE))
   
   #Add the rest of the columns to the dataframe
   statFrame$GEO_PICT = "TV"
