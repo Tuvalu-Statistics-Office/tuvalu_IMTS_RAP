@@ -255,7 +255,6 @@ export <- merge(export, selCountry, by = "coeID", all = TRUE)
 export <- export |>
   rename(
     Country = coeSelected,
-    Region = regionSelected,
     cif = CIF
   )
 

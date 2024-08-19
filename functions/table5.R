@@ -22,7 +22,7 @@ table5 <- function(statFrame) {
   #Export Transport mode Annual
   exportTransportAnnual <- export %>%
     group_by(Office, Year) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(exportTransportAnnual)[colnames(exportTransportAnnual) == "Year"] <- "TIME_PERIOD"
   colnames(exportTransportAnnual)[colnames(exportTransportAnnual) == "Office"] <- "TRANSPORT"
@@ -49,7 +49,7 @@ table5 <- function(statFrame) {
   #Export Transport mode Monthly
   exportTransportMonthly <- export %>%
     group_by(Office, yearMonth) %>%
-    summarise(OBS_VALUE = sum(CIF))
+    summarise(OBS_VALUE = sum(cif))
   
   colnames(exportTransportMonthly)[colnames(exportTransportMonthly) == "yearMonth"] <- "TIME_PERIOD"
   colnames(exportTransportMonthly)[colnames(exportTransportMonthly) == "Office"] <- "TRANSPORT"
@@ -75,6 +75,8 @@ table5 <- function(statFrame) {
   #Re-ordering of the columns
   order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
   statFrame <- statFrame[, order]
+  statFrame <- statFrame |>
+    filter(!is.na(OBS_VALUE))
   
   return(statFrame)
   

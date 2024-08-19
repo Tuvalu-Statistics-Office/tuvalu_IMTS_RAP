@@ -29,8 +29,8 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 #Reformatting month to include zero infront of 1 digit numbers
 #import$Month <- sprintf("%02d", import$Month)
 
-impo <- dbGetQuery(mydb, "SELECT * FROM impo")
-hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
+#impo <- dbGetQuery(mydb, "SELECT * FROM impo")
+#hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
 
 curYear <- max(impo$Year)
 curMonth <- impo %>%
@@ -41,27 +41,27 @@ curMonth <- curMonth$Month
 
 #merge imports and exports with hs classes
 #import_class <- merge(impo, hsClass, by = "hs2")
-export_class <- merge(export, hsClass, by = "hs2")
+#export_class <- merge(export, hsClass, by = "hs2")
 
 # Define TIME_PERIOD for later use
-impo$yearMonth <- paste(impo$Year, impo$Month, sep = "-")
+#impo$yearMonth <- paste(impo$Year, impo$Month, sep = "-")
 
 # Reformat Export date to get proper date and define Year and Month of export
-export$date <- as.Date(export$`SAD Date`)
-export$Year <- as.integer(format(export$date, "%Y"))
-export$Month <- as.integer(format(export$date, "%m"))
+#export$date <- as.Date(export$`SAD Date`)
+#export$Year <- as.integer(format(export$date, "%Y"))
+#export$Month <- as.integer(format(export$date, "%m"))
 
 #Reformatting month to include zero infront of 1 digit numbers
-export$Month <- sprintf("%02d", export$Month)
+#export$Month <- sprintf("%02d", export$Month)
 
-export$yearMonth <- paste(export$Year, export$Month, sep = "-")
+#export$yearMonth <- paste(export$Year, export$Month, sep = "-")
 
 #Write Import and Export tables into the sqlite database
-dbWriteTable(mydb, "impo", import, overwrite = TRUE)
-dbWriteTable(mydb, "export", export, overwrite = TRUE)
-dbWriteTable(mydb, "hsclass", hsClass, overwrite = TRUE)
-dbWriteTable(mydb, "tblprinImports", principalImports, overwrite = TRUE)
-dbWriteTable(mydb, "tblcountry", country, overwrite = TRUE)
+#dbWriteTable(mydb, "impo", import, overwrite = TRUE)
+#dbWriteTable(mydb, "export", export, overwrite = TRUE)
+#dbWriteTable(mydb, "hsclass", hsClass, overwrite = TRUE)
+#dbWriteTable(mydb, "tblprinImports", principalImports, overwrite = TRUE)
+#dbWriteTable(mydb, "tblcountry", country, overwrite = TRUE)
 
 # Create month dataframe 
 month <- data.frame(

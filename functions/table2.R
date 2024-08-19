@@ -55,11 +55,8 @@ table2 <- function(statFrame){
   # Annual Export by HS processing
   
   exportHS <- export %>%
-    select(Year, Month, HS2, CIF) %>%
-    rename(hs2 = HS2,
-           cif = CIF,
-           )
-  
+    select(Year, Month, hs2, cif)
+      
   exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
@@ -80,11 +77,8 @@ table2 <- function(statFrame){
   # Monthly Export by HS processing
   
   exportYM <- export %>%
-    select(yearMonth, HS2, CIF) %>%
-    rename(hs2 = HS2,
-           cif = CIF
-           )
-  
+    select(yearMonth, hs2, cif)
+      
   exportYM_merge_class <- merge(exportYM, hsClass, by = "hs2")
   
   exportYM_merge_class_summary <- exportYM_merge_class %>%
