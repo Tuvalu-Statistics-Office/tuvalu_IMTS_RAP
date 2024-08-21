@@ -9,6 +9,7 @@ source("setup.R")
 mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 #Declare variables to pass year and month for processing
+#Staff to specify year and month for tables
 startYear = 2023
 endYear = 2023
 
