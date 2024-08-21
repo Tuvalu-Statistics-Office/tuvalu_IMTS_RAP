@@ -225,6 +225,7 @@ boxplot(boxCheck_82141000$unitValue)
 #     EXPORTS
 #-------------------------------------------------------------------------------
 #Read in the export excel file
+#Staff to check export data to include fish exports and re-export of fuel
 export <- read_excel("data/export.xlsx")
 
 #Getting year and month
