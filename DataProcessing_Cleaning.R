@@ -258,8 +258,6 @@ export <- export |>
     Country = coeSelected,
     cif = CIF
   )
-
-export <- merge(export, hsClass, by = "hs2Code")
 export$mcif <- 0
 
 #Getting principle exports

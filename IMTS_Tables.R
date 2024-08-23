@@ -10,11 +10,11 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 #Declare variables to pass year and month for processing
 #Staff to specify year and month for tables
-startYear = 2023
-endYear = 2023
+startYear = 2024
+endYear = 2024
 
-startMonth = 6
-endMonth = 8
+startMonth = 1
+endMonth = 6
 
 #Default table Styling
 
@@ -83,7 +83,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T1",
 #------------------------------------------------------------------------------
 # Table T2 - Total imports
 #------------------------------------------------------------------------------
-tab2 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
+tab2 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
                    FROM impo
                    GROUP BY Year, Month, Chapter")
 
@@ -92,9 +92,11 @@ tab2 <- tab2 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
 
 tab2$fullChpt <- paste0(tab2$Chapter,"-",tab2$Desc)
+
 pt <- PivotTable$new()
 pt$addData(tab2)
-pt$addColumnDataGroups("fullChpt")
+pt$addColumnDataGroups("Num")
+pt$addColumnDataGroups("fullChpt", addTotal = FALSE)
 pt$addRowDataGroups("Year")
 pt$addRowDataGroups("Month")
 pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
@@ -113,10 +115,10 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T2",
 #   T3C - The sum of the domestic and re-exports
 #   Table T3 only produces domestic export from Customs data
 #------------------------------------------------------------------------------
-tab3 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc
+tab3 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
                    FROM export
                    GROUP BY Year, Month, Chapter")
-#tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
+tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
 #Need to uncomment the line above when there is export data
 
 #Apply filter to get the required records
@@ -125,7 +127,8 @@ tab3 <- tab3 |>
 
 pt <- PivotTable$new()
 pt$addData(tab3)
-pt$addColumnDataGroups("Chapter") #change variable to 'fullChpt' when there is export data
+pt$addColumnDataGroups("Num")
+pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
 pt$addRowDataGroups("Month")
 pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
