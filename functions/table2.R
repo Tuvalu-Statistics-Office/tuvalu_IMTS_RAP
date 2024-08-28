@@ -7,13 +7,15 @@ table2 <- function(statFrame){
   #### Import by Classifications 2_M #####
   impo <- dbGetQuery(mydb, "SELECT * FROM impo")
   hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
+  hsClass$hs2Code <- hsClass$hs2
   
   # Annual Data preparation
   
  importHS <- impo %>%
-    select(Year, Month, hs2, cif)
+    select(Year, Month, hs2, cif) |>
+    rename(hs2Code = hs2)
   
-  importHS_merge_class <- merge(importHS, hsClass, by = "hs2")
+  importHS_merge_class <- merge(importHS, hsClass, by = "hs2Code")
   
   importHS_merge_class_summary <- importHS_merge_class %>%
     group_by(Year, Month, hsGroup, hsDescription) %>%
@@ -55,9 +57,9 @@ table2 <- function(statFrame){
   # Annual Export by HS processing
   
   exportHS <- export %>%
-    select(Year, Month, hs2, cif)
+    select(Year, Month, hs2Code, cif)
       
-  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
+  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2Code")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
     group_by(Year, Month, hsGroup, hsDescription) %>%
@@ -77,9 +79,9 @@ table2 <- function(statFrame){
   # Monthly Export by HS processing
   
   exportYM <- export %>%
-    select(yearMonth, hs2, cif)
+    select(yearMonth, hs2Code, cif)
       
-  exportYM_merge_class <- merge(exportYM, hsClass, by = "hs2")
+  exportYM_merge_class <- merge(exportYM, hsClass, by = "hs2Code")
   
   exportYM_merge_class_summary <- exportYM_merge_class %>%
     group_by(yearMonth, hsGroup) %>%
