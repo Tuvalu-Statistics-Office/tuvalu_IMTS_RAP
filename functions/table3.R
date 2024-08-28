@@ -16,9 +16,9 @@ table3 <- function(statFrame){
   
    
   exportHS <- export %>%
-    select(Year, Month, hs2, cif)
-      
-  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2")
+    select(Year, Month, hs2Code, cif)
+   
+  exportHS_merge_class <- merge(exportHS, hsClass, by = "hs2Code")
   
   exportHS_merge_class_summary <- exportHS_merge_class %>%
     group_by(Year, Month, hsGroup, hsDescription) %>%
@@ -41,10 +41,10 @@ table3 <- function(statFrame){
   # Monthly data preparation
   
   exportYM <- export %>%
-    select(yearMonth, hs2, cif) 
+    select(yearMonth, hs2Code, cif) 
     
   
-  exportHS_merge_class_YM <- merge(exportYM, hsClass, by = "hs2")
+  exportHS_merge_class_YM <- merge(exportYM, hsClass, by = "hs2Code")
   
   monthExportCommodity <- exportHS_merge_class_YM %>%
     group_by(yearMonth, hsGroup) %>%
