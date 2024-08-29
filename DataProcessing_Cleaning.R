@@ -131,7 +131,7 @@ impo <- impo[, -which(names(impo) == "totCount")]
 impo$prinCode[is.na(impo$prinCode)] <- 9999
 impo$prinSpecs[is.na(impo$prinSpecs)] <- "Other imports"
 
-# Create an auto-incrementing column using row_number()
+# Create an auto-increment column using row_number()
 impo <- impo %>% 
   mutate(UID = row_number())
 
@@ -220,6 +220,42 @@ boxCheck_82141000 <- impo %>%
   )
 
 boxplot(boxCheck_82141000$unitValue)
+
+
+#************************************Method 2: IQR *************************************************************
+impo$qty1 <- as.numeric(as.vector(impo$qtywgt))
+
+impo$unitValue1 <- round((impo$cif / impo$qty1), 2)
+
+#Construct the summary table
+imports_check1 <- impo %>%
+  group_by(tariff, uomCode) %>%
+  summarise(medianUnitValue = round(median(unitValue1), 2),
+            q1 = round(quantile(unitValue1,0.25), 2),
+            q3 = round(quantile(unitValue1,0.75), 2),
+            iqr = q3 - q1,
+            upper = q3 + (1.5 * iqr),
+            lower = q1 - (1.5 * iqr),
+            frq = n(),
+  )
+
+#Checking imports data using IQR method
+impo_chk <- merge(impo, imports_check1, by = c("tariff","uomCode"), all = TRUE)
+impo_chk <- impo_chk %>%
+  select(sadDate, sadNo, Importer, tariff, uomCode, frq, goodsDesc, cif, 
+         qtywgt, unitValue1, medianUnitValue, q1, q3, iqr, lower, upper)
+impo_chk$outlier <- ifelse(impo_chk$unitValue1>= impo_chk$lower & impo_chk$unitValue1<=impo_chk$upper, 1, 0)
+
+#Correcting quantities for imports
+#This file can be used to analyze imports and exports by quantity
+impo_qty_correction <- impo_chk
+impo_qty_correction$qtyCorr = ifelse(impo_qty_correction$outlier == 0, round(impo_qty_correction$cif / impo_qty_correction$medianUnitValue, 2),impo_qty_correction$qtywgt)
+write.csv(impo_qty_correction, "output/imports_qty_correct.csv", row.names = FALSE)
+
+#Show only outliers to be shared with Customs
+impo_chk_shared <- impo_qty_correction %>%
+  filter(outlier == 0)
+write.csv(impo_chk, "output/imports_chk.csv", row.names = FALSE)
 
 #-------------------------------------------------------------------------------
 #     EXPORTS
