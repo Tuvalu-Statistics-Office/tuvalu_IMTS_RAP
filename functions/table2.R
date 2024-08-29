@@ -4,13 +4,15 @@
 
 table2 <- function(statFrame){
   statFrame <- data.frame()
+
+#******************************* Import table generation ****************************** #
+
   #### Import by Classifications 2_M #####
   impo <- dbGetQuery(mydb, "SELECT * FROM impo")
   hsClass <- dbGetQuery(mydb, "SELECT * FROM hsClass")
   hsClass$hs2Code <- hsClass$hs2
   
   # Annual Data preparation
-  
  importHS <- impo %>%
     select(Year, Month, hs2, cif) |>
     rename(hs2Code = hs2)
@@ -22,22 +24,24 @@ table2 <- function(statFrame){
     summarise(total = sum(cif))
   
   # Annual Import by Commodity
-  
   annualImportCommodity <- importHS_merge_class_summary %>%
     group_by(Year, hsGroup) %>%
-    summarise(OBS_VALUE = sum(total))
+    summarise(totImp = sum(total))
   
-  colnames(annualImportCommodity)[colnames(annualImportCommodity) == "Year"] <- "TIME_PERIOD"
-  annualImportCommodity$TIME_PERIOD <- as.character(annualImportCommodity$TIME_PERIOD)
-  colnames(annualImportCommodity)[colnames(annualImportCommodity) == "hsGroup"] <- "COMMODITY"
+  # Creating the data cube
+  annualImportCommodity <- as.data.table(annualImportCommodity)
+  annualImportCommodity_cube <- cube(annualImportCommodity, j = sum(totImp), by = c("Year", "hsGroup"), id = FALSE)
+  annualImportCommodity_cube <- annualImportCommodity_cube[!is.na(annualImportCommodity_cube$Year)]
   
-  annualImportCommodity$FREQ  = "A"
-  annualImportCommodity$TRADE_FLOW = "M"
-  #statFrame <- rbind(statFrame, annualImportCommodity)
-  
+  #Reformat table
+  annualImportCommodity_cube <- annualImportCommodity_cube |>
+    filter(!is.na(hsGroup)) |>
+    mutate(hsGroup = ifelse(is.na(hsGroup), "_T", hsGroup),
+           TRADE_FLOW = "M",
+           FREQ = "A") |>
+    rename(COMMODITY = hsGroup, TIME_PERIOD = Year, OBS_VALUE = V1)
   
   # Monthly data preparation
-  
   importYM <- impo %>%
     select(yearMonth, hs2, cif)
   
@@ -45,17 +49,24 @@ table2 <- function(statFrame){
   
   monthImportCommodity <- importHS_merge_class_YM %>%
     group_by(yearMonth, hsGroup) %>%
-    summarise(OBS_VALUE = sum(cif))
+    summarise(totImp = sum(cif))
   
-  colnames(monthImportCommodity)[colnames(monthImportCommodity) == "yearMonth"] <- "TIME_PERIOD"
-  colnames(monthImportCommodity)[colnames(monthImportCommodity) == "hsGroup"] <- "COMMODITY"
-  monthImportCommodity$FREQ  = "M"
-  monthImportCommodity$TRADE_FLOW = "M"
+  # Creating the data cube
+  monthImportCommodity <- as.data.table(monthImportCommodity)
+  monthImportCommodity_cube <- cube(monthImportCommodity, j = sum(totImp), by = c("yearMonth", "hsGroup"), id = FALSE)
   
-  statFrame <- rbind(statFrame, monthImportCommodity)
+  #Reformat table
+  monthImportCommodity_cube <- monthImportCommodity_cube |>
+    filter(!is.na(yearMonth)) |>
+    filter(!is.na(hsGroup)) |>
+    mutate(hsGroup = ifelse(is.na(hsGroup), "_T", hsGroup),
+           TRADE_FLOW = "M",
+           FREQ = "M") |>
+    rename(COMMODITY = hsGroup, TIME_PERIOD = yearMonth, OBS_VALUE = V1)
   
+  #### Export by Classifications 3_M #####
+    export <- dbGetQuery(mydb, "SELECT * FROM export")
   # Annual Export by HS processing
-  
   exportHS <- export %>%
     select(Year, Month, hs2Code, cif)
       
@@ -67,49 +78,56 @@ table2 <- function(statFrame){
   
   annualExportCommodity <- exportHS_merge_class_summary %>%
     group_by(Year, hsGroup) %>%
-    summarise(OBS_VALUE = sum(total))
+    summarise(totExp = sum(total))
   
-  colnames(annualExportCommodity)[colnames(annualExportCommodity) == "Year"] <- "TIME_PERIOD"
-  annualExportCommodity$TIME_PERIOD <- as.character(annualExportCommodity$TIME_PERIOD)
-  colnames(annualExportCommodity)[colnames(annualExportCommodity) == "hsGroup"] <- "COMMODITY"
+  # Creating the data cube
+  annualExportCommodity <- as.data.table(annualExportCommodity)
+  annualExportCommodity_cube <- cube(annualExportCommodity, j = sum(totExp), by = c("Year", "hsGroup"), id = FALSE)
   
-  annualExportCommodity$FREQ  = "A"
-  annualExportCommodity$TRADE_FLOW = "X"
+  #Reformat table
+  annualExportCommodity_cube <- annualExportCommodity_cube |>
+    filter(!is.na(Year)) |>
+    filter(!is.na(hsGroup)) |>
+    mutate(hsGroup = ifelse(is.na(hsGroup), "_T", hsGroup),
+           TRADE_FLOW = "X",
+           FREQ = "A") |>
+    rename(COMMODITY = hsGroup, TIME_PERIOD = Year, OBS_VALUE = V1)
   
   # Monthly Export by HS processing
-  
   exportYM <- export %>%
     select(yearMonth, hs2Code, cif)
       
   exportYM_merge_class <- merge(exportYM, hsClass, by = "hs2Code")
   
-  exportYM_merge_class_summary <- exportYM_merge_class %>%
+  monthlyExportCommodity <- exportYM_merge_class %>%
     group_by(yearMonth, hsGroup) %>%
-    summarise(OBS_VALUE = sum(cif))
+    summarise(totExp = sum(cif))
   
-  colnames(exportYM_merge_class_summary)[colnames(exportYM_merge_class_summary) == "yearMonth"] <- "TIME_PERIOD"
-  exportYM_merge_class_summary$TIME_PERIOD <- as.character(exportYM_merge_class_summary$TIME_PERIOD)
-  colnames(exportYM_merge_class_summary)[colnames(exportYM_merge_class_summary) == "hsGroup"] <- "COMMODITY"
+  # Creating the data cube
+  monthlyExportCommodity <- as.data.table(monthlyExportCommodity)
+  monthlyExportCommodity_cube <- cube(monthlyExportCommodity, j = sum(totExp), by = c("yearMonth", "hsGroup"), id = FALSE)
   
-  exportYM_merge_class_summary$FREQ  = "M"
-  exportYM_merge_class_summary$TRADE_FLOW = "X"
+  #Reformat table
+  monthlyExportCommodity_cube <- monthlyExportCommodity_cube |>
+    filter(!is.na(yearMonth)) |>
+    filter(!is.na(hsGroup)) |>
+    mutate(hsGroup = ifelse(is.na(hsGroup), "_T", hsGroup),
+           TRADE_FLOW = "X",
+           FREQ = "M") |>
+    rename(COMMODITY = hsGroup, TIME_PERIOD = yearMonth, OBS_VALUE = V1)
   
-  statFrame <- rbind(annualImportCommodity, monthImportCommodity, annualExportCommodity, exportYM_merge_class_summary)
+  statFrame <- rbind(annualImportCommodity_cube, monthImportCommodity_cube, annualExportCommodity_cube, monthlyExportCommodity_cube)
   
   #Add the rest of the columns
-  statFrame$GEO_PICT = "TV"
-  statFrame$INDICATOR = "AMT"
-  statFrame$COUNTERPART = "_T"
-  statFrame$TRANSPORT = "_T"
-  statFrame$CURRENCY = "DOM"
-  statFrame$UNIT_MEASURE ="AUD"
-  statFrame$UNIT_MULT = 3
-  statFrame$OBS_STATUS = ""
-  statFrame$DATA_SOURCE = ""
-  statFrame$OBS_COMMENT = ""
+  statFrame <- statFrame |>
+    mutate(GEO_PICT = "TV", INDICATOR = "AMT", CURRENCY = "DOM", TRANSPORT = "_T",
+           UNIT_MEASURE = "AUD", UNIT_MULT = "3", OBS_STATUS = "", DATA_SOURCE = "",
+           OBS_COMMENT = "", COUNTERPART = "_T")
   
-  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
-  statFrame <- statFrame[, order]
+  #Reorder the columns in the proper order
+  statFrame <- statFrame |>
+    select(FREQ, TIME_PERIOD, GEO_PICT, INDICATOR, TRADE_FLOW, COMMODITY, COUNTERPART, 
+           TRANSPORT, CURRENCY, OBS_VALUE, UNIT_MEASURE, UNIT_MULT, OBS_STATUS, DATA_SOURCE, OBS_COMMENT)
   
   return(statFrame)
   

@@ -9,6 +9,7 @@ library(officer)
 library(tidyverse)
 library(ggplot2)
 library(pivottabler)
+library(data.table)
 
 #Global variable declarations
 hsdigits <- 8
