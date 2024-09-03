@@ -99,6 +99,11 @@ table1 <- function(statFrame){
   statFrame$DATA_SOURCE = ""
   statFrame$OBS_COMMENT = ""
   
+  statFrame <- statFrame |>
+    select(FREQ, TIME_PERIOD, GEO_PICT, INDICATOR, TRADE_FLOW, COMMODITY, COUNTERPART,
+           TRANSPORT, CURRENCY, OBS_VALUE, UNIT_MEASURE, UNIT_MULT, OBS_STATUS, DATA_SOURCE, OBS_COMMENT)
+  
+  
   return(statFrame)
   
 }

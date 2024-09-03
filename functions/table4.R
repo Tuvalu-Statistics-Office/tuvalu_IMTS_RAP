@@ -9,80 +9,77 @@ table4 <- function(statFrame){
   statFrame <- data.frame()
   impo <- dbGetQuery(mydb, "SELECT * FROM impo")
   
-  
+  # Import by partner country by year
   importPartnerAnnual <- impo %>%
     group_by(coeID, Year) %>%
-    summarise(OBS_VALUE = sum(cif))
+    summarise(totImp = sum(cif))
   
-  # Renaming columns
-  
-  colnames(importPartnerAnnual)[colnames(importPartnerAnnual) == "Year"] <- "TIME_PERIOD"
-  colnames(importPartnerAnnual)[colnames(importPartnerAnnual) == "coeID"] <- "COUNTERPART"
-  
-  importPartnerAnnual$FREQ <- "A"
-  importPartnerAnnual$TRADE_FLOW <- "M"
-  
-  #Export by Partner Countries
-  exportPartnerAnnual <- export %>%
-    group_by(Year, coeID) %>%
-    summarise(OBS_VALUE = sum(cif))
-  
-  colnames(exportPartnerAnnual)[colnames(exportPartnerAnnual) == "Year"] <- "TIME_PERIOD"
-  colnames(exportPartnerAnnual)[colnames(exportPartnerAnnual) == "coeID"] <- "COUNTERPART"
-  
-  exportPartnerAnnual$FREQ <- "A"
-  exportPartnerAnnual$TRADE_FLOW <- "X"
-  
-  tradeByPartnerAnnual <- rbind(importPartnerAnnual, exportPartnerAnnual)
-  tradeByPartnerAnnual$TIME_PERIOD <- as.character(tradeByPartnerAnnual$TIME_PERIOD)
+  #Reformat table
+  importPartnerAnnual_cube <- importPartnerAnnual |>
+    mutate(TRADE_FLOW = "M",
+           FREQ = "A",
+           Year = as.character(Year)
+           ) |>
+    rename(COUNTERPART = coeID, TIME_PERIOD = Year, OBS_VALUE = totImp)
   
   # Import by partner country by month
-  
   importPartnerMonthly <- impo %>%
     group_by(coeID, yearMonth) %>%
-    summarise(OBS_VALUE = sum(cif))
+    summarise(totImp = sum(cif))
   
-  # Renaming columns
+  #Reformat table
+  importPartnerMonthly_cube <- importPartnerMonthly |>
+    mutate(TRADE_FLOW = "M",
+           FREQ = "M") |>
+    rename(COUNTERPART = coeID, TIME_PERIOD = yearMonth, OBS_VALUE = totImp)
   
-  colnames(importPartnerMonthly)[colnames(importPartnerMonthly) == "yearMonth"] <- "TIME_PERIOD"
-  colnames(importPartnerMonthly)[colnames(importPartnerMonthly) == "COE"] <- "COUNTERPART"
   
-  importPartnerMonthly$FREQ <- "M"
-  importPartnerMonthly$TRADE_FLOW <- "M"
+#*********************************** Export processing ********************************* 
   
- 
+  #Export by Partner Countries by year
+  export <- dbGetQuery(mydb, "SELECT * FROM export")
+  
+  exportPartnerAnnual <- export %>%
+    group_by(Year, coeID) %>%
+    summarise(totExp = sum(cif))
+  
+  #Reformat table
+  exportPartnerAnnual_cube <- exportPartnerAnnual |>
+    mutate(TRADE_FLOW = "X",
+           FREQ = "A",
+           Year = as.character(Year)
+           ) |>
+    rename(COUNTERPART = coeID, TIME_PERIOD = Year, OBS_VALUE = totExp)
+  
   # Export by partner country by month
   
   exportPartnerMonthly <- export %>%
     group_by(coeID, yearMonth) %>%
-    summarise(OBS_VALUE = sum(cif))
+    summarise(totExp = sum(cif))
   
-  # Renaming columns
+  #Reformat table
+  exportPartnerMonthly_cube <- exportPartnerMonthly |>
+    mutate(TRADE_FLOW = "X",
+           FREQ = "M") |>
+    rename(COUNTERPART = coeID, TIME_PERIOD = yearMonth, OBS_VALUE = totExp)
   
-  colnames(exportPartnerMonthly)[colnames(exportPartnerMonthly) == "yearMonth"] <- "TIME_PERIOD"
-  colnames(exportPartnerMonthly)[colnames(exportPartnerMonthly) == "COD"] <- "COUNTERPART"
+  statFrame <- rbind(importPartnerAnnual_cube,
+                     importPartnerMonthly_cube,
+                     exportPartnerAnnual_cube,
+                     exportPartnerMonthly_cube
+                     )
   
-  exportPartnerMonthly$FREQ <- "M"
-  exportPartnerMonthly$TRADE_FLOW <- "X"
   
-  tradeByPartnerMonthly <- rbind(importPartnerMonthly, exportPartnerMonthly)
+  #Add the rest of the columns
+  statFrame <- statFrame |>
+    mutate(GEO_PICT = "TV", INDICATOR = "AMT", CURRENCY = "DOM", TRANSPORT = "_T",
+           UNIT_MEASURE = "AUD", UNIT_MULT = "3", OBS_STATUS = "", DATA_SOURCE = "",
+           OBS_COMMENT = "", COMMODITY = "_T")
   
-  statFrame <- rbind(tradeByPartnerAnnual, tradeByPartnerMonthly )
-  
-  statFrame$GEO_PICT <- "TV"
-  statFrame$INDICATOR <- "AMT"
-  statFrame$COMMODITY <- "_T"
-  statFrame$TRANSPORT <- "_T"
-  statFrame$CURRENCY <- "DOM"
-  statFrame$UNIT_MEASURE <- "NZD"
-  statFrame$UNIT_MULT <- "3"
-  statFrame$OBS_STATUS <- ""
-  statFrame$DATA_SOURCE <- ""
-  statFrame$OBS_COMMENT <- ""
-  
-  #Re-ordering of the columns
-  order <- c("FREQ", "TIME_PERIOD", "GEO_PICT", "INDICATOR", "TRADE_FLOW", "COMMODITY", "COUNTERPART", "TRANSPORT", "CURRENCY", "OBS_VALUE", "UNIT_MEASURE", "UNIT_MULT", "OBS_STATUS", "DATA_SOURCE", "OBS_COMMENT")
-  statFrame <- statFrame[, order]
+  #Reorder the columns in the proper order
+  statFrame <- statFrame |>
+    select(FREQ, TIME_PERIOD, GEO_PICT, INDICATOR, TRADE_FLOW, COMMODITY, COUNTERPART, 
+           TRANSPORT, CURRENCY, OBS_VALUE, UNIT_MEASURE, UNIT_MULT, OBS_STATUS, DATA_SOURCE, OBS_COMMENT)
   
   return(statFrame)
 
