@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# This script produces IMTS tables for Tuvalu.
+# This script produces the original IMTS tables for Tuvalu.
 #------------------------------------------------------------------------------
 
 #Referencing the setup source file
@@ -15,6 +15,9 @@ endYear = 2024
 
 startMonth = 1
 endMonth = 6
+
+#Select export type
+export = "Export"
 
 #Default table Styling
 
@@ -45,7 +48,7 @@ imp1$Type[imp1$Type=="IM 4"] <- "Import"
 imp1$xcif <- 0
 dbWriteTable(mydb, "imp1", imp1, overwrite = TRUE)
 
-exp1 <- dbGetQuery(mydb, "SELECT Office, `SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
+exp1 <- dbGetQuery(mydb, "SELECT Office,`SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
                    Country,regionSelected AS Region, Month, Year, cif AS xcif
                    FROM export")
 dbWriteTable(mydb, "exp1", exp1, overwrite = TRUE)
@@ -58,13 +61,13 @@ dbWriteTable(mydb, "trade", trade, overwrite = TRUE)
 #------------------------------------------------------------------------------
 # Table T1 - Balance of Trade
 #------------------------------------------------------------------------------
-tab1 <- dbGetQuery(mydb, "SELECT Year, Month, sum(mcif) AS Import, sum(xcif) As Export
+tab1 <- dbGetQuery(mydb, "SELECT Year, Month, Type, sum(mcif) AS Import, sum(xcif) As Export
                           FROM trade
-                          GROUP BY Year, Month")
+                          GROUP BY Year, Month, Type")
 
 #Apply filter to get the required records
 tab1 <- tab1 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
 
 tab1$tradeBal <- tab1$Export - tab1$Import
 pt <- PivotTable$new()
@@ -115,7 +118,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T2",
 #   T3C - The sum of the domestic and re-exports
 #   Table T3 only produces domestic export from Customs data
 #------------------------------------------------------------------------------
-tab3 <- dbGetQuery(mydb, "SELECT Year, Month, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
+tab3 <- dbGetQuery(mydb, "SELECT Year, Month, `SAD Model` AS Type, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
                    FROM export
                    GROUP BY Year, Month, Chapter")
 tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
@@ -123,7 +126,7 @@ tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
 
 #Apply filter to get the required records
 tab3 <- tab3 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == export)
 
 pt <- PivotTable$new()
 pt$addData(tab3)
@@ -142,13 +145,13 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T3",
 #------------------------------------------------------------------------------
 # Table T4 - Principle exports
 #------------------------------------------------------------------------------
-tab4 <- dbGetQuery(mydb,"SELECT princ_x_desc AS Commodity, Year, Month, sum(cif) AS Value
+tab4 <- dbGetQuery(mydb,"SELECT princ_x_desc AS Commodity, Year, Month, `SAD Model` AS Type, sum(cif) AS Value
                    FROM export
                    GROUP BY Year, Month, princ_x_desc")
 
 #Apply filter to get the required records
 tab4 <- tab4 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == export)
 
 
 pt <- PivotTable$new()
@@ -186,7 +189,7 @@ tab5 <- tab5 |>
 pt <- PivotTable$new()
 pt$addData(tab5)
 pt$addColumnDataGroups("Year")
-pt$addColumnDataGroups("Month")
+pt$addColumnDataGroups("monthName")
 pt$addRowDataGroups("Commodity")
 pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
 pt$theme <- tableTheme
@@ -201,11 +204,11 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 #------------------------------------------------------------------------------
 tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          GROUP BY Year, Month, Country")
+                          GROUP BY Year, Month, Country, Type")
 
 #Apply filter to get the required records
 tab6 <- tab6 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
 
 tab6$Balance <- tab6$Export - tab6$Import
 
@@ -230,11 +233,11 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T6",
 #------------------------------------------------------------------------------
 tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          GROUP BY Year, Month, Region")
+                          GROUP BY Year, Month, Region, Type")
 
 #Apply filter to get the required records
 tab7 <- tab7 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
 
 tab7$Balance <- tab7$Export - tab7$Import
 
@@ -255,15 +258,15 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T7",
                          topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
 
 #------------------------------------------------------------------------------
-# Table T8 - Balance of trade by country
+# Table T8 - Balance of trade by transport mode
 #------------------------------------------------------------------------------
 tab8 <- dbGetQuery(mydb,"SELECT Office, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
-                          GROUP BY Year, Month, Office")
+                          GROUP BY Year, Month, Office, Type")
 
 #Apply filter to get the required records
 tab8 <- tab8 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
 
 tab8$Balance <- tab8$Export - tab8$Import
 pt <- PivotTable$new()
@@ -283,4 +286,4 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T8",
                          topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
 
 #Save Final Excel Workbook to output folder
-saveWorkbook(wb, file="output/IMTS_ReleaseTables.xlsx", overwrite = TRUE)
+saveWorkbook(wb, file="output/IMTS_ReleaseTables_Original.xlsx", overwrite = TRUE)
