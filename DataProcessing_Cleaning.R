@@ -281,8 +281,9 @@ export$hs2Code <- substr(export$Tariff, 1, hs2digits)
 export$hs4 <- substr(export$Tariff, 1, hs4digits)
 export$Chapter <- sprintf("%02d", export$Chapter)
 
-#Change values for EX 1
-export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
+#Change values besides FISH and FUEL to Export
+#export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
+export$`SAD Model` <- ifelse(export$`SAD Model`=="FISH" | export$`SAD Model`=="FUEL",export$`SAD Model`,"Export")
 
 #Getting country names
 colnames(export)[colnames(export) == "COD"] <- "coeID"
