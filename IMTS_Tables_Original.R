@@ -183,7 +183,7 @@ tab3C$fullChpt <- paste0(tab3C$Chapter,"-",tab3C$Desc)
 
 #Apply filter to get the required records
 tab3C <- tab3C |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == "Re-export")
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth)& Type == "Export" | Type == "Re-export")
 
 pt <- PivotTable$new()
 pt$addData(tab3C)
