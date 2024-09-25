@@ -16,9 +16,6 @@ endYear = 2024
 startMonth = 1
 endMonth = 6
 
-#Select export type
-export = "Export"
-
 #Default table Styling
 
 tableTheme <- list(
@@ -67,14 +64,20 @@ tab1 <- dbGetQuery(mydb, "SELECT Year, Month, Type, sum(mcif) AS Import, sum(xci
 
 #Apply filter to get the required records
 tab1 <- tab1 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export" | Type == "Import" | Type == "Re-export"))
 
 tab1$tradeBal <- tab1$Export - tab1$Import
+#Splitting totals for export and re-export
+tab1$DomX <- ifelse(tab1$Type == "Export",tab1$Export,0)
+tab1$ReX <- ifelse(tab1$Type == "Re-export",tab1$Export,0)
+
 pt <- PivotTable$new()
 pt$addData(tab1)
 pt$addRowDataGroups("Year")
 pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="Exports", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Domestic", summariseExpression="format(round(sum(DomX), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Re-Export", summariseExpression="format(round(sum(ReX), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Total Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Imports", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(tradeBal), 0), big.mark = ',')")
 pt$theme <- tableTheme
@@ -118,18 +121,20 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T2",
 #   T3C - The sum of the domestic and re-exports
 #   Table T3 only produces domestic export from Customs data
 #------------------------------------------------------------------------------
-tab3 <- dbGetQuery(mydb, "SELECT Year, Month, `SAD Model` AS Type, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
+#Table 3A
+#------------------------------------------------------------------------------
+tab3A <- dbGetQuery(mydb, "SELECT Year, Month, `SAD Model` AS Type, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
                    FROM export
                    GROUP BY Year, Month, Chapter")
-tab3$fullChpt <- paste0(tab3$Chapter,"-",tab3$Desc)
+tab3A$fullChpt <- paste0(tab3A$Chapter,"-",tab3A$Desc)
 #Need to uncomment the line above when there is export data
 
 #Apply filter to get the required records
-tab3 <- tab3 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == export)
+tab3A <- tab3A |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == "Export")
 
 pt <- PivotTable$new()
-pt$addData(tab3)
+pt$addData(tab3A)
 pt$addColumnDataGroups("Num")
 pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
@@ -138,10 +143,61 @@ pt$defineCalculation(calculationName="TotalExports", summariseExpression="format
 pt$theme <- tableTheme
 pt$renderPivot()
 
-addWorksheet(wb, "T3")
-pt$writeToExcelWorksheet(wb=wb, wsName="T3", 
+addWorksheet(wb, "T3A")
+pt$writeToExcelWorksheet(wb=wb, wsName="T3A", 
                          topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+#------------------------------------------------------------------------------
+#Table 3B
+#------------------------------------------------------------------------------
+tab3B <- dbGetQuery(mydb, "SELECT Year, Month, `SAD Model` AS Type, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
+                   FROM export
+                   GROUP BY Year, Month, Chapter")
+tab3B$fullChpt <- paste0(tab3B$Chapter,"-",tab3B$Desc)
+#Need to uncomment the line above when there is export data
 
+#Apply filter to get the required records
+tab3B <- tab3B |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == "Re-export")
+
+pt <- PivotTable$new()
+pt$addData(tab3B)
+pt$addColumnDataGroups("Num")
+pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
+pt$addRowDataGroups("Year")
+pt$addRowDataGroups("Month")
+pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$theme <- tableTheme
+pt$renderPivot()
+
+addWorksheet(wb, "T3B")
+pt$writeToExcelWorksheet(wb=wb, wsName="T3B", 
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+#------------------------------------------------------------------------------
+#Table 3C
+#------------------------------------------------------------------------------
+tab3C <- dbGetQuery(mydb, "SELECT Year, Month, `SAD Model` AS Type, sum(cif) AS Value, hsGroup AS Chapter, hsDescription AS Desc, hsGroupNum AS Num
+                   FROM export
+                   GROUP BY Year, Month, Chapter")
+tab3C$fullChpt <- paste0(tab3C$Chapter,"-",tab3C$Desc)
+#Need to uncomment the line above when there is export data
+
+#Apply filter to get the required records
+tab3C <- tab3C |>
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == "Re-export")
+
+pt <- PivotTable$new()
+pt$addData(tab3C)
+pt$addColumnDataGroups("Num")
+pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
+pt$addRowDataGroups("Year")
+pt$addRowDataGroups("Month")
+pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$theme <- tableTheme
+pt$renderPivot()
+
+addWorksheet(wb, "T3C")
+pt$writeToExcelWorksheet(wb=wb, wsName="T3C", 
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
 #------------------------------------------------------------------------------
 # Table T4 - Principle exports
 #------------------------------------------------------------------------------
@@ -151,7 +207,7 @@ tab4 <- dbGetQuery(mydb,"SELECT princ_x_desc AS Commodity, Year, Month, `SAD Mod
 
 #Apply filter to get the required records
 tab4 <- tab4 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == export)
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & Type == "Export" | Type == "Re-export")
 
 
 pt <- PivotTable$new()
@@ -168,19 +224,9 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T4",
                          topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
 
 #------------------------------------------------------------------------------
-# Table T5 - Principle imports (taken directly from original script)
+# Table T5 - Principle imports
 #------------------------------------------------------------------------------
-tab5 <- dbGetQuery(mydb, "SELECT impo.Year,
-                                      impo.Month,
-                                      tblmonth.monthName,
-                                      tblprinImports.PRINC_desc AS Commodity,
-                                      sum(impo.CIF) AS Value
-                               FROM impo
-                               INNER JOIN tblprinImports ON impo.prinCode = tblprinImports.PRINC_IMP
-                               INNER JOIN tblmonth ON impo.Month = tblmonth.Month
-                               GROUP BY Year, impo.Month, monthName, Commodity
-                               ORDER BY Year, impo.Month
-                        ")
+tab5 <- dbGetQuery(mydb, "SELECT * FROM impo")
 #Apply filter to get the required records
 tab5 <- tab5 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth))
@@ -189,9 +235,10 @@ tab5 <- tab5 |>
 pt <- PivotTable$new()
 pt$addData(tab5)
 pt$addColumnDataGroups("Year")
-pt$addColumnDataGroups("monthName")
-pt$addRowDataGroups("Commodity")
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$addColumnDataGroups("Month")
+pt$addRowDataGroups("NUM", addTotal = FALSE)
+pt$addRowDataGroups("prinSpecs", addTotal = FALSE)
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(cif), 0), big.mark = ',')")
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -208,7 +255,7 @@ tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(x
 
 #Apply filter to get the required records
 tab6 <- tab6 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export" | Type == "Import" | Type == "Re-export"))
 
 tab6$Balance <- tab6$Export - tab6$Import
 
@@ -237,7 +284,7 @@ tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xc
 
 #Apply filter to get the required records
 tab7 <- tab7 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export"  | Type == "Import"| Type == "Re-export"))
 
 tab7$Balance <- tab7$Export - tab7$Import
 
@@ -266,7 +313,7 @@ tab8 <- dbGetQuery(mydb,"SELECT Office, sum(mcif) AS Import, Month, Year, sum(xc
 
 #Apply filter to get the required records
 tab8 <- tab8 |>
-  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == export | Type == "Import"))
+  filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export"  | Type == "Import"| Type == "Re-export"))
 
 tab8$Balance <- tab8$Export - tab8$Import
 pt <- PivotTable$new()

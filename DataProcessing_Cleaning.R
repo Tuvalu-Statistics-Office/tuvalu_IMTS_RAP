@@ -117,7 +117,7 @@ hs_pImport_append <- rbind(hs2_import, hs4_import)
 hs_pImport_append_Desc <- merge(hs_pImport_append, pImportDesc, by = "prinCode")
 
 hs_pImport_append_Desc <- hs_pImport_append_Desc %>%
-  select(tariff, prinCode, prinSpecs)
+  select(tariff, prinCode, prinSpecs, NUM)
 
 impo_Tariff_unique <- impo %>%
   group_by(tariff) %>%
@@ -130,6 +130,7 @@ impo <- impo[, -which(names(impo) == "totCount")]
 #Replace NA with other
 impo$prinCode[is.na(impo$prinCode)] <- 9999
 impo$prinSpecs[is.na(impo$prinSpecs)] <- "Other imports"
+impo$NUM[is.na(impo$NUM)] <- 34
 
 # Create an auto-increment column using row_number()
 impo <- impo %>% 
@@ -283,7 +284,7 @@ export$Chapter <- sprintf("%02d", export$Chapter)
 
 #Change values besides FISH and FUEL to Export
 #export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"
-export$`SAD Model` <- ifelse(export$`SAD Model`=="FISH" | export$`SAD Model`=="FUEL",export$`SAD Model`,"Export")
+export$`SAD Model` <- ifelse(export$`SAD Model`=="Fish" | export$`SAD Model`=="Re-export",export$`SAD Model`,"Export")
 
 #Getting country names
 colnames(export)[colnames(export) == "COD"] <- "coeID"
