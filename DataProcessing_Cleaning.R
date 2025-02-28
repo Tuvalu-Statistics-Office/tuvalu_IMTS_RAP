@@ -88,6 +88,7 @@ pImport$PM <- sprintf("%0*d", hs4digits, pImport$PM)
 colnames(pImport)[colnames(pImport) == "PM"] <- "hs4"
 colnames(pImport)[colnames(pImport) == "HS"] <- "myHS"
 
+pImport$hs4 <- ifelse(str_length(pImport$myHS)<= 2,substr(pImport$hs4,3,4),pImport$hs4)
 #Write impo and pImport table to the SQLite database
 dbWriteTable(mydb, "impo", impo, overwrite = TRUE)
 dbWriteTable(mydb, "pImport", pImport, overwrite = TRUE)
@@ -107,7 +108,7 @@ hs2_import <- dbGetQuery(mydb, "SELECT impo.Tariff,
                                        pImport.prinCode,
                                        COUNT(Tariff) AS freq
                                 FROM impo
-                                INNER JOIN pImport ON impo.hs2 = pImport.prinCode
+                                INNER JOIN pImport ON impo.hs2 = pImport.hs4
                                 GROUP BY impo.Tariff, pImport.hs4, pImport.prinCode  
                          ")
 
