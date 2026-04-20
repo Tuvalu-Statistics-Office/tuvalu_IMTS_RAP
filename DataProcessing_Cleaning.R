@@ -10,7 +10,7 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 #### *************************************** DATA PREPARATION ************************************************* #### 
 
-impo <- read.csv("data/import.csv")
+impo <- read_excel("data/import.xlsx")
 selCountry <- read.csv("other/selCountry.csv")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
@@ -31,36 +31,36 @@ dbWriteTable(mydb, "hsClass", hsClass, overwrite = TRUE)
 #*******************************************************************************
 
 impo <- impo %>%
-  rename(sadDate = SAD.Date,
-         sadNo = SAD..,
-         importerName = Importer.Name,
-         sadModel = SAD.Model,
+  rename(sadDate = `SAD Date`,
+         sadNo = `SAD #`,
+         importerName = `Importer Name`,
+         sadModel = `SAD Model`,
          coeID = COE,
-         coeName = COE.Nam,
-         itemNo = Item..,
+         coeName = `COE Nam`,
+         itemNo = `Item #`,
          tariff = Tariff,
-         goodsDesc = Goods.Dsc.,
-         natProc = Nat..Proc,
+         goodsDesc = `Goods Dsc.`,
+         natProc = `Nat. Proc`,
          preference = Preferenc,
          coo = COO,
-         cooName = COO.Name,
-         invoiceValue = Invoice.Value,
-         freightIns = Freight...Ins.,
+         cooName = `COO Name`,
+         invoiceValue = `Invoice Value`,
+         freightIns = `Freight & Ins.`,
          cif = CIF,
-         totalTax = Total.Tax,
+         totalTax = `Total Tax`,
          imd = IMD,
          iex = IEX,
          tct = TCT,
          wal = WAL,
-         uomCode = UOM.CODE,
-         uomCode2 = UOM.CODE.1
+         uomCode = `UOM CODE`,
+         uomCode2 = `UOM CODE2`
   )
 
 #merge to get Selected country
 impo <- merge(impo, selCountry, by = "coeID", all = TRUE)
 
 #Converting date from text to date format and extract month and year
-impo$sadDate = dmy(impo$sadDate)
+#impo$sadDate = dmy(impo$sadDate)
 impo$Month = month(impo$sadDate)
 impo$Year = year(impo$sadDate)
 
@@ -70,7 +70,7 @@ impo$yearMonth <- paste(impo$Year, impo$MonthID, sep = "-")
 #Drop records where the Tariff has NA value
 impo <- impo[!is.na(impo$tariff), ]
 
-impo$tariff <- sprintf("%0*d", hsdigits, impo$tariff)
+#impo$tariff <- sprintf("%s", hsdigits, impo$tariff)
 
 #Extract and Create HS2 and HS4 and Chapter columns
 impo$hs2 <- substr(impo$tariff, 1, hs2digits)
@@ -189,39 +189,39 @@ write.csv(imports_check_rem_freq_one, "output/HS_checks.csv", row.names = FALSE)
 #write.csv(imports, "c:/temp/imports.csv", row.names = FALSE)
 
 #Example where checking should be done
-boxCheck_19053100 <- impo %>%
-  filter(tariff == 19053100
+#boxCheck_19053100 <- impo %>%
+#  filter(tariff == 19053100
          
-  )
+#  )
 
-boxplot(boxCheck_19053100$unitValue)
+#boxplot(boxCheck_19053100$unitValue)
 
 
 #Example where checking should be done
-boxCheck_27101990 <- impo %>%
-  filter(tariff == 27101990
+#boxCheck_27101990 <- impo %>%
+#  filter(tariff == 27101990
          
-  )
+ # )
 
 #boxplot(boxCheck_27101990$unitValue)
 
 
 #Example where checking should be done
-boxCheck_39249000 <- impo %>%
-  filter(tariff == 39249000
+#boxCheck_39249000 <- impo %>%
+#  filter(tariff == 39249000
          
-  )
+#  )
 
-boxplot(boxCheck_39249000$unitValue)
+#boxplot(boxCheck_39249000$unitValue)
 
 
 #Example where checking should be done
-boxCheck_82141000 <- impo %>%
-  filter(tariff == 82141000
+#boxCheck_82141000 <- impo %>%
+#  filter(tariff == 82141000
          
-  )
+#  )
 
-boxplot(boxCheck_82141000$unitValue)
+#boxplot(boxCheck_82141000$unitValue)
 
 
 #************************************Method 2: IQR *************************************************************
@@ -278,10 +278,10 @@ export <- export |>
          )
 
 #Reformat tariff to 8 digits and create hs2 and hs4 columns
-export$Tariff <- sprintf("%08d", export$Tariff)
+export$Tariff <- sprintf("%08s", export$Tariff)
 export$hs2Code <- substr(export$Tariff, 1, hs2digits)
 export$hs4 <- substr(export$Tariff, 1, hs4digits)
-export$Chapter <- sprintf("%02d", export$Chapter)
+export$Chapter <- sprintf("%02s", export$Chapter)
 
 #Change values besides FISH and FUEL to Export
 #export$`SAD Model`[export$`SAD Model`=="EX 1"] <- "Export"

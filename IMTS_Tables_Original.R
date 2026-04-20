@@ -11,10 +11,10 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 #Declare variables to pass year and month for processing
 #Staff to specify year and month for tables
 startYear = 2024
-endYear = 2024
+endYear = 2025
 
 startMonth = 1
-endMonth = 6
+endMonth = 12
 
 #Default table Styling
 
@@ -39,14 +39,14 @@ wb <- createWorkbook(creator = Sys.getenv("USERNAME"))
 # Preparing table that contains both import and export
 #------------------------------------------------------------------------------
 imp1 <- dbGetQuery(mydb, "SELECT Office, sadDate AS Date, sadNo AS SAD, sadModel AS Type, Chapter, cif AS mcif, 
-                   coeSelected AS Country, regionSelected AS Region, Month, Year
+                   coeNum, coeSelected AS Country,regNum, regionSelected AS Region, Month, Year
                    FROM impo")
 imp1$Type[imp1$Type=="IM 4"] <- "Import"
 imp1$xcif <- 0
 dbWriteTable(mydb, "imp1", imp1, overwrite = TRUE)
 
 exp1 <- dbGetQuery(mydb, "SELECT Office,`SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
-                   Country,regionSelected AS Region, Month, Year, cif AS xcif
+                   coeNum, Country,regNum,regionSelected AS Region, Month, Year, cif AS xcif
                    FROM export")
 dbWriteTable(mydb, "exp1", exp1, overwrite = TRUE)
 
@@ -249,7 +249,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 #------------------------------------------------------------------------------
 # Table T6 - Balance of trade by country
 #------------------------------------------------------------------------------
-tab6 <- dbGetQuery(mydb,"SELECT Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
+tab6 <- dbGetQuery(mydb,"SELECT coeNum, Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           GROUP BY Year, Month, Country, Type")
 
@@ -258,12 +258,15 @@ tab6 <- tab6 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export" | Type == "Import" | Type == "Re-export"))
 
 tab6$Balance <- tab6$Export - tab6$Import
+tab6$coeNum <- ifelse(is.na(tab6$coeNum),14,tab6$coeNum)
+tab6$Country <- ifelse(is.na(tab6$Country),'Other',tab6$Country)
 
 pt <- PivotTable$new()
 pt$addData(tab6)
-pt$addColumnDataGroups("Year")
+pt$addColumnDataGroups("Year",addTotal = FALSE)
 pt$addColumnDataGroups("Month")
-pt$addRowDataGroups("Country")
+pt$addRowDataGroups("coeNum")
+pt$addRowDataGroups("Country",addTotal = FALSE)
 pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
@@ -278,7 +281,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T6",
 #------------------------------------------------------------------------------
 # Table T7 - Balance of trade by region
 #------------------------------------------------------------------------------
-tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
+tab7 <- dbGetQuery(mydb,"SELECT regNum, Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           GROUP BY Year, Month, Region, Type")
 
@@ -287,12 +290,14 @@ tab7 <- tab7 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export"  | Type == "Import"| Type == "Re-export"))
 
 tab7$Balance <- tab7$Export - tab7$Import
-
+tab7$regNum <- ifelse(is.na(tab7$regNum),99,tab7$regNum)
+tab7$Region <- ifelse(is.na(tab7$Region),'Other',tab7$Region)
 pt <- PivotTable$new()
 pt$addData(tab7)
-pt$addColumnDataGroups("Year")
+pt$addColumnDataGroups("Year",addTotal = FALSE)
 pt$addColumnDataGroups("Month")
-pt$addRowDataGroups("Region")
+pt$addRowDataGroups("regNum")
+pt$addRowDataGroups("Region",addTotal = FALSE)
 pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
@@ -318,7 +323,7 @@ tab8 <- tab8 |>
 tab8$Balance <- tab8$Export - tab8$Import
 pt <- PivotTable$new()
 pt$addData(tab8)
-pt$addRowDataGroups("Year")
+pt$addRowDataGroups("Year",addTotal = FALSE)
 pt$addRowDataGroups("Month")
 pt$addColumnDataGroups("Office")
 pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
