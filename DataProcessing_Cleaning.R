@@ -52,7 +52,7 @@ impo <- impo %>%
          iex = IEX,
          tct = TCT,
          wal = WAL,
-         #user needs to check the column headers and make the necessary changes
+         #important: user needs to check the column headers and make the necessary changes
          uomCode = `UOM CODE1`,
          uomCode2 = `UOM CODE2`
   )

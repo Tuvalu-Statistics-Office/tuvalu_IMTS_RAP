@@ -10,11 +10,11 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 #Declare variables to pass year and month for processing
 #Staff to specify year and month for tables
-startYear = 2024
-endYear = 2025
+startYear = 2026
+endYear = 2026
 
 startMonth = 1
-endMonth = 12
+endMonth = 3
 
 #Default table Styling
 
@@ -267,10 +267,10 @@ pt$addRowDataGroups("Year",addTotal = FALSE)
 pt$addRowDataGroups("Month")
 pt$addColumnDataGroups("coeNum")
 pt$addColumnDataGroups("Country",addTotal = FALSE)
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
-pt$addRowCalculationGroups()
+pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -298,10 +298,10 @@ pt$addRowDataGroups("Year",addTotal = FALSE)
 pt$addRowDataGroups("Month")
 pt$addColumnDataGroups("regNum")
 pt$addColumnDataGroups("Region",addTotal = FALSE)
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
-pt$addRowCalculationGroups()
+pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
@@ -326,10 +326,10 @@ pt$addData(tab8)
 pt$addRowDataGroups("Year",addTotal = FALSE)
 pt$addRowDataGroups("Month")
 pt$addColumnDataGroups("Office")
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
 pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
-pt$addRowCalculationGroups()
+pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
