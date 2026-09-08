@@ -8,21 +8,20 @@ library(dplyr)
 library(readxl)
 #-------------------------------------------------------------------------------
 #Define key variables and data
-target_tariff <- c("27111100","02023000")#Enter tariff delimited  by ','
+target_tariff <- c("2711","0202")#Enter tariff delimited  by ','
 years <- c(2026) #Enter years to tabulate
-target_level <- 2 #Change this to the target level of HS
+target_level <- 4 #Change this to the target level of HS
 clean_qty_data <- read_csv("output/imports_qty_correct.csv")
 #-------------------------------------------------------------------------------
 clean_qty_data$year <- year(clean_qty_data$sadDate) #Generate year
 str_hs <- paste("HS_",target_level) #Define label for target HS level
 clean_qty_data$coln <- substr(clean_qty_data$tariff,1,target_level) #get hs level
-names(clean_qty_data)[names(clean_qty_data)=="coln"] <- trimws(str_hs) #rename column
 clean_qty_data$tariff <- sprintf("%0*d", 8, as.numeric(clean_qty_data$tariff))
 clean_qty_data$tariff <- as.character(clean_qty_data$tariff)
 #Remove other records
 clean_qty_data_filtered <- clean_qty_data %>% 
-  filter(clean_qty_data$tariff %in% target_tariff)
-
+  filter(clean_qty_data$coln %in% target_tariff)
+names(clean_qty_data_filtered)[names(clean_qty_data)=="coln"] <- trimws(str_hs) #rename column
 #Keep target attributes columns
 
 cols_to_keep <- c("year",str_hs, "cif", "uomCode", "qtyCorr")
