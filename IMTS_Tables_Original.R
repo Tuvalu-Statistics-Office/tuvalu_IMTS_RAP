@@ -39,14 +39,14 @@ wb <- createWorkbook(creator = Sys.getenv("USERNAME"))
 # Preparing table that contains both import and export
 #------------------------------------------------------------------------------
 imp1 <- dbGetQuery(mydb, "SELECT Office, sadDate AS Date, sadNo AS SAD, sadModel AS Type, Chapter, cif AS mcif, 
-                   coeNum, coeSelected AS Country,regNum, regionSelected AS Region, Month, Year
+                   coeNum, coeSelected AS Country, regSelected AS Region, Month, Year
                    FROM impo")
 imp1$Type[imp1$Type=="IM 4"] <- "Import"
 imp1$xcif <- 0
 dbWriteTable(mydb, "imp1", imp1, overwrite = TRUE)
 
 exp1 <- dbGetQuery(mydb, "SELECT Office,`SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
-                   coeNum, Country,regNum,regionSelected AS Region, Month, Year, cif AS xcif
+                   coeNum, Country,regSelected AS Region, Month, Year, cif AS xcif
                    FROM export")
 dbWriteTable(mydb, "exp1", exp1, overwrite = TRUE)
 
@@ -74,18 +74,19 @@ tab1$ReX <- ifelse(tab1$Type == "Re-export",tab1$Export,0)
 pt <- PivotTable$new()
 pt$addData(tab1)
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="Domestic", summariseExpression="format(round(sum(DomX), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Re-Export", summariseExpression="format(round(sum(ReX), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Total Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Imports", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(tradeBal), 0), big.mark = ',')")
+pt$addRowDataGroups("Month", addTotal = FALSE)
+pt$defineCalculation(calculationName="Domestic", summariseExpression="format(round(sum(DomX), 0))")
+pt$defineCalculation(calculationName="Re-Export", summariseExpression="format(round(sum(ReX), 0))")
+pt$defineCalculation(calculationName="Total Export", summariseExpression="format(round(sum(Export), 0))")
+pt$defineCalculation(calculationName="Imports", summariseExpression="format(round(sum(Import), 0))")
+pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(tradeBal), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T1")
 pt$writeToExcelWorksheet(wb=wb, wsName="T1", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 #------------------------------------------------------------------------------
 # Table T2 - Total imports
 #------------------------------------------------------------------------------
@@ -102,16 +103,17 @@ tab2$fullChpt <- paste0(tab2$Chapter,"-",tab2$Desc)
 pt <- PivotTable$new()
 pt$addData(tab2)
 pt$addColumnDataGroups("Num")
-pt$addColumnDataGroups("fullChpt", addTotal = FALSE)
+pt$addColumnDataGroups("fullChpt",addTotal = FALSE)
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$addRowDataGroups("Month", addTotal = FALSE)
+pt$defineCalculation(calculationName="TotalImports", summariseExpression="format(round(sum(Value), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T2")
 pt$writeToExcelWorksheet(wb=wb, wsName="T2", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #------------------------------------------------------------------------------
 # Table T3 - Total exports
@@ -136,16 +138,17 @@ tab3A <- tab3A |>
 pt <- PivotTable$new()
 pt$addData(tab3A)
 pt$addColumnDataGroups("Num")
-pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
+pt$addColumnDataGroups("fullChpt",,addTotal = FALSE) #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$addRowDataGroups("Month",addTotal = FALSE)
+pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T3A")
 pt$writeToExcelWorksheet(wb=wb, wsName="T3A", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 #------------------------------------------------------------------------------
 #Table 3B
 #------------------------------------------------------------------------------
@@ -164,14 +167,15 @@ pt$addData(tab3B)
 pt$addColumnDataGroups("Num")
 pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$addRowDataGroups("Month",addTotal = FALSE)
+pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T3B")
 pt$writeToExcelWorksheet(wb=wb, wsName="T3B", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 #------------------------------------------------------------------------------
 #Table 3C
 #------------------------------------------------------------------------------
@@ -190,14 +194,15 @@ pt$addData(tab3C)
 pt$addColumnDataGroups("Num")
 pt$addColumnDataGroups("fullChpt",addTotal = FALSE) #change variable to 'fullChpt' when there is export data
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$addRowDataGroups("Month",addTotal = FALSE)
+pt$defineCalculation(calculationName="TotalExports", summariseExpression="format(round(sum(Value), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T3C")
 pt$writeToExcelWorksheet(wb=wb, wsName="T3C", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 #------------------------------------------------------------------------------
 # Table T4 - Principle exports
 #------------------------------------------------------------------------------
@@ -213,15 +218,16 @@ tab4 <- tab4 |>
 pt <- PivotTable$new()
 pt$addData(tab4)
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
+pt$addRowDataGroups("Month",addTotal = FALSE)
 pt$addColumnDataGroups("Commodity")
-pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Value), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Value), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T4")
 pt$writeToExcelWorksheet(wb=wb, wsName="T4", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #------------------------------------------------------------------------------
 # Table T5 - Principle imports
@@ -235,16 +241,17 @@ tab5 <- tab5 |>
 pt <- PivotTable$new()
 pt$addData(tab5)
 pt$addRowDataGroups("Year")
-pt$addRowDataGroups("Month")
-pt$addColumnDataGroups("NUM", addTotal = FALSE)
+pt$addRowDataGroups("Month",addTotal = FALSE)
+pt$addColumnDataGroups("NUM")
 pt$addColumnDataGroups("prinSpecs", addTotal = FALSE)
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(cif), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(cif), 0))")
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T5")
 pt$writeToExcelWorksheet(wb=wb, wsName="T5", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #------------------------------------------------------------------------------
 # Table T6 - Balance of trade by country
@@ -263,25 +270,26 @@ tab6$Country <- ifelse(is.na(tab6$Country),'Other',tab6$Country)
 
 pt <- PivotTable$new()
 pt$addData(tab6)
-pt$addRowDataGroups("Year",addTotal = FALSE)
-pt$addRowDataGroups("Month")
+pt$addRowDataGroups("Year")
+pt$addRowDataGroups("Month",addTotal = FALSE)
 pt$addColumnDataGroups("coeNum")
 pt$addColumnDataGroups("Country",addTotal = FALSE)
-pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
+pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0))")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0))")
+pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0))")
 pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T6")
 pt$writeToExcelWorksheet(wb=wb, wsName="T6", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #------------------------------------------------------------------------------
 # Table T7 - Balance of trade by region
 #------------------------------------------------------------------------------
-tab7 <- dbGetQuery(mydb,"SELECT regNum, Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
+tab7 <- dbGetQuery(mydb,"SELECT Region, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           GROUP BY Year, Month, Region, Type")
 
@@ -290,24 +298,25 @@ tab7 <- tab7 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export"  | Type == "Import"| Type == "Re-export"))
 
 tab7$Balance <- tab7$Export - tab7$Import
-tab7$regNum <- ifelse(is.na(tab7$regNum),99,tab7$regNum)
+#tab7$regNum <- ifelse(is.na(tab7$regNum),99,tab7$regNum)
 tab7$Region <- ifelse(is.na(tab7$Region),'Other',tab7$Region)
 pt <- PivotTable$new()
 pt$addData(tab7)
-pt$addRowDataGroups("Year",addTotal = FALSE)
-pt$addRowDataGroups("Month")
-pt$addColumnDataGroups("regNum")
-pt$addColumnDataGroups("Region",addTotal = FALSE)
-pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
+pt$addRowDataGroups("Year")
+pt$addRowDataGroups("Month",addTotal = FALSE)
+#pt$addColumnDataGroups("regNum")
+pt$addColumnDataGroups("Region")
+pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0))")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0))")
+pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0))")
 pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T7")
 pt$writeToExcelWorksheet(wb=wb, wsName="T7", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #------------------------------------------------------------------------------
 # Table T8 - Balance of trade by transport mode
@@ -325,17 +334,18 @@ pt <- PivotTable$new()
 pt$addData(tab8)
 pt$addRowDataGroups("Year",addTotal = FALSE)
 pt$addRowDataGroups("Month")
-pt$addColumnDataGroups("Office")
-pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0), big.mark = ',')")
-pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0), big.mark = ',')")
+pt$addColumnDataGroups("Office",addTotal = FALSE)
+pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0))")
+pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0))")
+pt$defineCalculation(calculationName="Balance", summariseExpression="format(round(sum(Balance), 0))")
 pt$addColumnCalculationGroups()
 pt$theme <- tableTheme
 pt$renderPivot()
 
 addWorksheet(wb, "T8")
 pt$writeToExcelWorksheet(wb=wb, wsName="T8", 
-                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE)
+                         topRowNumber=1, leftMostColumnNumber=1, applyStyles=TRUE, mapStylesFromCSS=TRUE,
+                         outputValuesAs = "formattedValueAsNumber")
 
 #Save Final Excel Workbook to output folder
 saveWorkbook(wb, file="output/IMTS_ReleaseTables_Original.xlsx", overwrite = TRUE)

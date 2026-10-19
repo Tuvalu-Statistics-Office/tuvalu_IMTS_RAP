@@ -12,6 +12,7 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 
 impo <- read_excel("data/import.xlsx")
 selCountry <- read.csv("other/selCountry.csv")
+selRegion <- read.csv("other/selRegion.csv")
 country <- read.csv("other/country.csv")
 countries <- read.csv("other/countries.csv")
 hsClass <- read.csv("other/importClassification.csv")
@@ -58,7 +59,11 @@ impo <- impo %>%
   )
 
 #merge to get Selected country
-impo <- merge(impo, selCountry, by = "coeID", all = TRUE)
+impo <- left_join(impo, countries, by = "coeID")
+impo <- left_join(impo, selCountry, by = "coeID")
+impo <- left_join(impo, selRegion, by = "region")
+impo$coeSelected <- ifelse(is.na(impo$coeSelected),"Other",impo$coeSelected)
+impo$regSelected <- ifelse(is.na(impo$regSelected),"Other",impo$regSelected)
 
 #Converting date from text to date format and extract month and year
 #impo$sadDate = dmy(impo$sadDate)
@@ -290,7 +295,11 @@ export$`SAD Model` <- ifelse(export$`SAD Model`=="Fish" | export$`SAD Model`=="R
 
 #Getting country names
 colnames(export)[colnames(export) == "COD"] <- "coeID"
-export <- merge(export, selCountry, by = "coeID", all = TRUE)
+export <- left_join(export, countries, by = "coeID")
+export <- left_join(export, selCountry, by = "coeID")
+export <- left_join(export, selRegion, by = "region")
+export$coeSelected <- ifelse(is.na(export$coeSelected),"Other",export$coeSelected)
+export$regSelected <- ifelse(is.na(export$regSelected),"Other",export$regSelected)
 
 #Renaming the columns
 export <- export |>

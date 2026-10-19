@@ -1,4 +1,4 @@
-countryCode,region,countryDesc
+coeID,region,countryDesc
 CM,Africa,Cameroon
 DJ,Africa,Djibouti
 DZ,Africa,Algeria
@@ -50,20 +50,20 @@ SR,Asia,Suriname
 TH,Asia,Thailand
 TW,Asia,"Taiwan, Peoples Republic of China"
 VN,Asia,Viet Nam
-BE,E E C,Belgium
-DE,E E C,Germany
-DK,E E C,Denmark
-ES,E E C,Spain
-FR,E E C,France
-GB,E E C,United Kingdom
-GR,E E C,Greece
-IE,E E C,"Ireland, Republic of"
-IT,E E C,Italy
-NL,E E C,Netherlands
-TR,E E C,Turkey
-BG,Eastern Europe,Bulgaria
-GE,Eastern Europe,Georgia
-RU,Eastern Europe,Russia
+BE,Europe,Belgium
+DE,Europe,Germany
+DK,Europe,Denmark
+ES,Europe,Spain
+FR,Europe,France
+GB,Europe,United Kingdom
+GR,Europe,Greece
+IE,Europe,"Ireland, Republic of"
+IT,Europe,Italy
+NL,Europe,Netherlands
+TR,Europe,Turkey
+BG,Europe,Bulgaria
+GE,Europe,Georgia
+RU,Europe,Russia
 AD,Europe,Andorra
 AM,Europe,Armenia
 AT,Europe,Austria
