@@ -39,14 +39,14 @@ wb <- createWorkbook(creator = Sys.getenv("USERNAME"))
 # Preparing table that contains both import and export
 #------------------------------------------------------------------------------
 imp1 <- dbGetQuery(mydb, "SELECT Office, sadDate AS Date, sadNo AS SAD, sadModel AS Type, Chapter, cif AS mcif, 
-                   coeNum, coeSelected AS Country, regSelected AS Region, Month, Year
+                   cooNum, cooSelected AS Country, regSelected AS Region, Month, Year
                    FROM impo")
 imp1$Type[imp1$Type=="IM 4"] <- "Import"
 imp1$xcif <- 0
 dbWriteTable(mydb, "imp1", imp1, overwrite = TRUE)
 
 exp1 <- dbGetQuery(mydb, "SELECT Office,`SAD Date` AS Date, `SAD #` AS SAD, `SAD Model` AS Type, Chapter, mcif,
-                   coeNum, Country,regSelected AS Region, Month, Year, cif AS xcif
+                   cooNum, Country,regSelected AS Region, Month, Year, cif AS xcif
                    FROM export")
 dbWriteTable(mydb, "exp1", exp1, overwrite = TRUE)
 
@@ -256,7 +256,7 @@ pt$writeToExcelWorksheet(wb=wb, wsName="T5",
 #------------------------------------------------------------------------------
 # Table T6 - Balance of trade by country
 #------------------------------------------------------------------------------
-tab6 <- dbGetQuery(mydb,"SELECT coeNum, Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
+tab6 <- dbGetQuery(mydb,"SELECT cooNum, Country, sum(mcif) AS Import, Month, Year, sum(xcif) AS Export, Type
                           FROM trade
                           GROUP BY Year, Month, Country, Type")
 
@@ -265,14 +265,14 @@ tab6 <- tab6 |>
   filter((Year >= startYear & Year <= endYear) & (Month >= startMonth & Month <= endMonth) & (Type == "Export" | Type == "Import" | Type == "Re-export"))
 
 tab6$Balance <- tab6$Export - tab6$Import
-tab6$coeNum <- ifelse(is.na(tab6$coeNum),14,tab6$coeNum)
+tab6$cooNum <- ifelse(is.na(tab6$cooNum),14,tab6$cooNum)
 tab6$Country <- ifelse(is.na(tab6$Country),'Other',tab6$Country)
 
 pt <- PivotTable$new()
 pt$addData(tab6)
 pt$addRowDataGroups("Year")
 pt$addRowDataGroups("Month",addTotal = FALSE)
-pt$addColumnDataGroups("coeNum")
+pt$addColumnDataGroups("cooNum")
 pt$addColumnDataGroups("Country",addTotal = FALSE)
 pt$defineCalculation(calculationName="Export", summariseExpression="format(round(sum(Export), 0))")
 pt$defineCalculation(calculationName="Import", summariseExpression="format(round(sum(Import), 0))")

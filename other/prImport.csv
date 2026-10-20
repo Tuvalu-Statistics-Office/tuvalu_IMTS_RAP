@@ -2,35 +2,12 @@ HS,PM,prinCode,princImpDesc
 2,2,2,"Meat and edible offal, incl poultry, fresh, chilled or frozen"
 4,4,4,"Dairy produce, eggs and honey"
 7,7,7,Edible vegetables
-901,901,0901-02,Coffee and tea
-902,902,0901-02,Coffee and tea
 1006,1006,1006,Rice
 1101,1101,1101,Wheat flour 
-1501,1501,1501-18,Animal or vegetable fats & oils
-1502,1502,1501-18,Animal or vegetable fats & oils
-1503,1503,1501-18,Animal or vegetable fats & oils
-1504,1504,1501-18,Animal or vegetable fats & oils
-1505,1505,1501-18,Animal or vegetable fats & oils
-1506,1506,1501-18,Animal or vegetable fats & oils
-1507,1507,1501-18,Animal or vegetable fats & oils
-1508,1508,1501-18,Animal or vegetable fats & oils
-1509,1509,1501-18,Animal or vegetable fats & oils
-1510,1510,1501-18,Animal or vegetable fats & oils
-1511,1511,1501-18,Animal or vegetable fats & oils
-1512,1512,1501-18,Animal or vegetable fats & oils
-1513,1513,1501-18,Animal or vegetable fats & oils
-1514,1514,1501-18,Animal or vegetable fats & oils
-1515,1515,1501-18,Animal or vegetable fats & oils
-1516,1516,1501-18,Animal or vegetable fats & oils
-1517,1517,1501-18,Animal or vegetable fats & oils
-1518,1518,1501-18,Animal or vegetable fats & oils
 16,16,16,"Edible preparation of meat, fish, crustaceans etc"
 1701,1701,1701-03,Cane or beet sugar
 1702,1702,1701-03,Cane or beet sugar
 1703,1703,1701-03,Cane or beet sugar
-1902,1902,1902,Pasta/noodles and couscous
-1905,1905,1905,Biscuits
-2103,2103,2103,Sauces
 2201,2201,2201-02,Mineral and aerated waters including sweetened or flavoured
 2202,2202,2201-02,Mineral and aerated waters including sweetened or flavoured
 2203,2203,2203,Beer made from malt
@@ -70,25 +47,7 @@ HS,PM,prinCode,princImpDesc
 2529,2529,2504-30,"Earths and stone; plastering materials, lime and cement"
 2530,2530,2504-30,"Earths and stone; plastering materials, lime and cement"
 27,27,27,Mineral fuels and oils and related products
-30,30,30,Pharmaceutical products
-3208,3208,3208-10,Paints and varnishes
-3209,3209,3208-10,Paints and varnishes
-3210,3210,3208-10,Paints and varnishes
-3917,3917,3917,"Tubes, pipes and hoses, and fittings therefor, of plastics"
 44,44,44,Wood and articles of wood
-5208,5208,5208-12,Woven fabrics of cotton
-5209,5209,5208-12,Woven fabrics of cotton
-5210,5210,5208-12,Woven fabrics of cotton
-5211,5211,5208-12,Woven fabrics of cotton
-5212,5212,5208-12,Woven fabrics of cotton
-61,61,61-62,Articles of apparel and clothing accessories
-62,62,61-62,Articles of apparel and clothing accessories
-63,63,63,Other made-up textile articles and worn clothing
-68,68,68,"Articles of stone, plaster, cement and similar materials"
-69,69,69,Ceramic products
-70,70,70,Glass and glass ware
 84,84,84,"Boilers, Machinery and mechanical appliance and parts thereof"
 85,85,85,"Electical machinery and equipment, television image and sound recorders and parts thereof"
 87,87,87,"Motor vehicles incl motorcycles, bicycles and tractors"
-9015,9015,9015,Survey instruments etc 
-94,94,94,"Furniture, bedding, refabricated buildings etc"

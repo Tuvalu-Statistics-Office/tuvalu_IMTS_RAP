@@ -13,17 +13,13 @@ mydb <- dbConnect(RSQLite::SQLite(), "data/imts.db")
 impo <- read_excel("data/import.xlsx")
 selCountry <- read.csv("other/selCountry.csv")
 selRegion <- read.csv("other/selRegion.csv")
-country <- read.csv("other/country.csv")
-countries <- read.csv("other/countries.csv")
+countries <- read.csv("other/region_country.csv")
 hsClass <- read.csv("other/importClassification.csv")
-principalImports <- read.csv("other/principalImports.csv")
-
 
 hsClass$hs2 <- sprintf("%0*d", hs2digits, hsClass$hs2)
 
 #Write the tables to the SQLite database exept for the impo table
 dbWriteTable(mydb, "selCountry", selCountry, overwrite = TRUE)
-dbWriteTable(mydb, "country", country, overwrite = TRUE)
 dbWriteTable(mydb, "countries", countries, overwrite = TRUE)
 dbWriteTable(mydb, "hsClass", hsClass, overwrite = TRUE)
 
@@ -36,14 +32,14 @@ impo <- impo %>%
          sadNo = `SAD #`,
          importerName = `Importer Name`,
          sadModel = `SAD Model`,
-         coeID = COE,
+         coe = COE,
          coeName = `COE Nam`,
          itemNo = `Item #`,
          tariff = Tariff,
          goodsDesc = `Goods Dsc.`,
          natProc = `Nat. Proc`,
          preference = Preferenc,
-         coo = COO,
+         cooID = COO,
          cooName = `COO Name`,
          invoiceValue = `Invoice Value`,
          freightIns = `Freight & Ins.`,
@@ -59,10 +55,10 @@ impo <- impo %>%
   )
 
 #merge to get Selected country
-impo <- left_join(impo, countries, by = "coeID")
-impo <- left_join(impo, selCountry, by = "coeID")
+impo <- left_join(impo, countries, by = "cooID")
+impo <- left_join(impo, selCountry, by = "cooID")
 impo <- left_join(impo, selRegion, by = "region")
-impo$coeSelected <- ifelse(is.na(impo$coeSelected),"Other",impo$coeSelected)
+impo$cooSelected <- ifelse(is.na(impo$cooSelected),"Other",impo$cooSelected)
 impo$regSelected <- ifelse(is.na(impo$regSelected),"Other",impo$regSelected)
 
 #Converting date from text to date format and extract month and year
@@ -137,7 +133,7 @@ impo <- impo[, -which(names(impo) == "totCount")]
 #Replace NA with other
 impo$prinCode[is.na(impo$prinCode)] <- 9999
 impo$prinSpecs[is.na(impo$prinSpecs)] <- "Other imports"
-impo$NUM[is.na(impo$NUM)] <- 34
+impo$NUM[is.na(impo$NUM)] <- 16
 
 # Create an auto-increment column using row_number()
 impo <- impo %>% 
@@ -294,17 +290,17 @@ export$Chapter <- sprintf("%02s", export$Chapter)
 export$`SAD Model` <- ifelse(export$`SAD Model`=="Fish" | export$`SAD Model`=="Re-export",export$`SAD Model`,"Export")
 
 #Getting country names
-colnames(export)[colnames(export) == "COD"] <- "coeID"
-export <- left_join(export, countries, by = "coeID")
-export <- left_join(export, selCountry, by = "coeID")
+colnames(export)[colnames(export) == "COD"] <- "cooID"
+export <- left_join(export, countries, by = "cooID")
+export <- left_join(export, selCountry, by = "cooID")
 export <- left_join(export, selRegion, by = "region")
-export$coeSelected <- ifelse(is.na(export$coeSelected),"Other",export$coeSelected)
+export$cooSelected <- ifelse(is.na(export$cooSelected),"Other",export$cooSelected)
 export$regSelected <- ifelse(is.na(export$regSelected),"Other",export$regSelected)
 
 #Renaming the columns
 export <- export |>
   rename(
-    Country = coeSelected,
+    Country = cooSelected,
     cif = CIF
   )
 export$mcif <- 0
